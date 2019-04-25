@@ -1,0 +1,60 @@
+// Funkcijos
+function length(vector : Vector) -> Double {
+    Math.sqrt(vector.x ^ 2 + vector.y ^ 2)
+}
+
+function someFunction(a : Int, b : Int) -> int {
+    a + b
+}
+
+// Kintamieji
+vector : Vector = new Vector(10, 10)
+length : Double = length(vector)
+number : Int = 10
+
+// Spausdinimas
+print(numbers[0])
+printLine('Hello')
+
+// Ciklai
+loop each item in numbers {
+    print(`@{item} `)
+}
+
+loop [i : int = 0; i < 10; i++] {
+    print(`@{i} `)
+}
+
+loop until [a < b] {
+    a++
+}
+
+// Sąlygos sakiniai
+if [a > b] then {
+    printLine('a is greater than b')
+} else if [b < a] then {
+    printLine('b is greater than a')
+} else {
+    printLine('a and b are equal')
+}
+
+// Skaitymas iš failo
+function readLines(path : string) -> string[] {
+    use fileReader in FileReader(path) {
+        lines : string[] = fileReader.readLines();
+    }
+    lines
+}
+
+// Rašymas į failą
+function writeLines(path : string, lines : string[]) -> void {
+    use fileWriter in FileWriter(path) {
+        fileWriter.writeLines(lines);
+    }
+}
+
+// Unikali savybė
+someString : String = "Hello there"
+someInt : Int = 14270
+print @someString // ereht olleH
+print @someInt // 7241
