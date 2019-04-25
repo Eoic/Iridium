@@ -2,6 +2,8 @@
 %{
     #include <stdio.h>
     #include "parser.tab.h"
+    void yyerror(char*);
+    int yyparse();
 %}
 
  // Regular expressions
@@ -11,9 +13,27 @@ linefeed        \n
 
  // Token specification
 %%
-{name}          { return NAME; }
-"{"             { return LEFT_BRACE; }
-"}"             { return RIGHT_BRACE; }
-{whitespace}
-{linefeed}      ++yylineno
+"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYP; }
+{name}                      { return NAME; }
+"{"                         { return CURLY_BRACKET_LEFT; }
+"}"                         { return CURLY_BRACKET_RIGHT; }
+"["                         { return BOX_BRACKET_LEFT; }
+"]"                         { return BOX_BRACKET_RIGHT; }
+{whitespace}                ;
+{linefeed}                  ++yylineno
+.
 %%
+
+ // C
+void yyerror(char* string) {
+    printf("Could not parse input.");
+}
+
+ // Called once end of the input file is reached. 
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    yyparse();
+}

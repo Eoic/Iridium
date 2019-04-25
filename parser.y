@@ -1,9 +1,16 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    int yylex ();
-    void yyerror (char const*)
-}%
+    extern int yylex();
+    extern void yyerror(char*);
+%}
 
- // Accepted tokens
-%token NAME LEFT_BRACE RIGHT_BRACE
+ // Token types
+%union {
+    int intValue;
+    float floatValue;
+    char* stringValue;
+}
+
+ // Tokens
+%token <stringValue> NAME
