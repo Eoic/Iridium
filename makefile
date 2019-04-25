@@ -1,10 +1,10 @@
 all:
-	${MAKE} semantics
+	${MAKE} lexer
 	${MAKE} parser
-	g++ parser.tab.c semantics.yy.c
+	g++ -Wall -Werror parser.tab.c lex.yy.c
 
-semantics:
-	flex semantics.l
+lexer:
+	flex lex.l
 
 parser:
 	bison parser.y
