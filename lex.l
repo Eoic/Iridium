@@ -9,14 +9,18 @@
  // Regular expressions
 name            \w([0-9]\w)+
 number          [0-9]+
+float           [+-]?([0-9]*[.])?[0-9]+
 whitespace      [\r\t\s]
 linefeed        \n
+string          (["'])(?:(?=(\\?))\2.)*?\1
 
  // Token specification
 %%
 "Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
 {name}                      { return NAME; }
-{number}                    { return NUMBER; }
+{number}                    { return INT; }
+{float}                     { return FLOAT; }
+{string}                    { return STRING; }
 "{"                         { return CURLY_BRACKET_L; }
 "}"                         { return CURLY_BRACKET_R; }
 "["                         { return BOX_BRACKET_L; }
