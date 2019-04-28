@@ -24,7 +24,7 @@
 %token POWER_BY
 %token INVERSE
 %token TYPE_ASSIGN METHOD_RETURN_TYPE
-%token PLUS MINUS
+%token PLUS MINUS MUL DIV MOD
 
 %%
 start : { printf("Exp."); } 

@@ -40,7 +40,7 @@ linefeed        \n
 "%"                         { return MOD; }
 {whitespace}                ;
 {linefeed}                  ++yylineno;
-.
+.                           yyterminate();
 %%
 
  // C
