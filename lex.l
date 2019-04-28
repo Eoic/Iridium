@@ -8,13 +8,15 @@
 
  // Regular expressions
 name            \w([0-9]\w)+
+number          [0-9]+
 whitespace      [\r\t\s]
 linefeed        \n
 
  // Token specification
 %%
- //"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
+"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
 {name}                      { return NAME; }
+{number}                    { return NUMBER; }
 "{"                         { return CURLY_BRACKET_L; }
 "}"                         { return CURLY_BRACKET_R; }
 "["                         { return BOX_BRACKET_L; }
@@ -38,6 +40,9 @@ linefeed        \n
 "*"                         { return MUL; }
 "/"                         { return DIV; }
 "%"                         { return MOD; }
+","                         { return COMMA; }
+"if"                        { return IF; }
+"loop"                      { return LOOP; }
 {whitespace}                ;
 {linefeed}                  ++yylineno;
 .                           yyterminate();
