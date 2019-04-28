@@ -13,12 +13,26 @@ linefeed        \n
 
  // Token specification
 %%
-"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
+ //"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
 {name}                      { return NAME; }
-"{"                         { return CURLY_BRACKET_LEFT; }
-"}"                         { return CURLY_BRACKET_RIGHT; }
-"["                         { return BOX_BRACKET_LEFT; }
-"]"                         { return BOX_BRACKET_RIGHT; }
+"{"                         { return CURLY_BRACKET_L; }
+"}"                         { return CURLY_BRACKET_R; }
+"["                         { return BOX_BRACKET_L; }
+"]"                         { return BOX_BRACKET_R; }
+">"                         { return GT; }
+"<"                         { return LT; }
+"="                         { return EQ; }
+">="                        { return GTE; }
+"<="                        { return LTE; }
+"=="                        { return CMP; }
+"&&"                        { return AND; }
+"||"                        { return OR; }
+"^"                         { return POWER_BY; }
+"@"                         { return INVERSE; }
+":"                         { return TYPE_ASSIGN; }
+"->"                        { return METHOD_RETURN_TYPE; }
+"("                         { return PARENTHESIS_L; }
+")"                         { return PARENTHESIS_R; }
 {whitespace}                ;
 {linefeed}                  ++yylineno;
 .
