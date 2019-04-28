@@ -1,7 +1,7 @@
  // Headers and declarations
+ //#include "parser.tab.h"
 %{
     #include <stdio.h>
-    #include "parser.tab.h"
     void yyerror(char*);
     int yyparse();
 %}
@@ -13,7 +13,7 @@ linefeed        \n
 
  // Token specification
 %%
-"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYP; }
+"Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
 {name}                      { return NAME; }
 "{"                         { return CURLY_BRACKET_LEFT; }
 "}"                         { return CURLY_BRACKET_RIGHT; }

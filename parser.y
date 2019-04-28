@@ -1,4 +1,5 @@
 %{
+    #include <iostream>
     #include <stdio.h>
     #include <stdlib.h>
     extern int yylex();
@@ -7,10 +8,17 @@
 
  // Token types
 %union {
-    int intValue;
-    float floatValue;
-    char* stringValue;
+    int ival;
+    float fval;
+    char* sval;
 }
 
- // Tokens
-%token <stringValue> NAME
+%token <ival> INT
+%token <fval> FLOAT
+%token <sval> STRING
+
+%%
+E : INT '+' INT
+  | INT '-' INT
+  ;
+%%
