@@ -17,6 +17,11 @@
 %token <fval> FLOAT
 %token <sval> STRING
 
+ // Token declarations
+%token NAME
+%token CURLY_BRACKET_LEFT CURLY_BRACKET_RIGHT
+%token BOX_BRACKET_LEFT BOX_BRACKET_RIGHT
+
 %%
 E : INT '+' INT
   | INT '-' INT

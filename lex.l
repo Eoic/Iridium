@@ -1,7 +1,7 @@
  // Headers and declarations
- //#include "parser.tab.h"
 %{
     #include <stdio.h>
+    #include "parser.tab.h"
     void yyerror(char*);
     int yyparse();
 %}
@@ -20,7 +20,7 @@ linefeed        \n
 "["                         { return BOX_BRACKET_LEFT; }
 "]"                         { return BOX_BRACKET_RIGHT; }
 {whitespace}                ;
-{linefeed}                  ++yylineno
+{linefeed}                  ++yylineno;
 .
 %%
 
@@ -31,6 +31,7 @@ void yyerror(char* string) {
 
  // Called once end of the input file is reached. 
 int yywrap() {
+    puts("Done");
     return 1;
 }
 

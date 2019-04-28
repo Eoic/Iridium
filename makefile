@@ -6,4 +6,4 @@ lexer:
 	flex lex.l
 
 parser:
-	bison parser.y
+	bison -d parser.y

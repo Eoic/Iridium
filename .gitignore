@@ -1,3 +1,4 @@
 lex.yy.c
 parser.tab.*
+compiler
 .vscode/
