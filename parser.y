@@ -25,7 +25,7 @@
 %token PLUS MINUS MUL DIV MOD POWER_BY                  // Arithmetic
 %token LT GT LTE GTE EQ CMP AND OR                      // Comparison and assignment
 %token INVERSE                                          // Misc
-%token IF LOOP                                          // Keywords
+%token IF LOOP UNTIL                                    // Keywords
 
 %%
 start : { printf("Started.\n"); } 
@@ -35,4 +35,12 @@ expr: expr PLUS expr
     | expr MUL expr
     | expr DIV expr
     ;
+for_loop: LOOP BOX_BRACKET_L expr ';' expr ';' expr BOX_BRACKET_R body;
+while_loop: LOOP UNTIL BOX_BRACKET_L expr BOX_BRACKET_R body;
+body: statement | CURLY_BRACKET_L statement CURLY_BRACKET_R;
+statement: statement
+         | if_statement
+         | for_loop
+         | while_loop;
+if_statement: IF BOX_BRACKET_L expr BOX_BRACKET_R body;
 %%

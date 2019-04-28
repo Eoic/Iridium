@@ -43,6 +43,7 @@ linefeed        \n
 ","                         { return COMMA; }
 "if"                        { return IF; }
 "loop"                      { return LOOP; }
+"until"                     { return UNTIL; }                 
 {whitespace}                ;
 {linefeed}                  ++yylineno;
 .                           yyterminate();

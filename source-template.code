@@ -17,10 +17,6 @@ print(numbers[0])
 printLine('Hello')
 
 // Ciklai
-loop each item in numbers {
-    print(`@{item} `)
-}
-
 loop [i : int = 0; i < 10; i++] {
     print(`@{i} `)
 }
