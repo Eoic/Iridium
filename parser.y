@@ -24,9 +24,9 @@
 %token POWER_BY
 %token INVERSE
 %token TYPE_ASSIGN METHOD_RETURN_TYPE
+%token PLUS MINUS
 
 %%
-E : INT '+' INT
-  | INT '-' INT
-  ;
+start : { printf("Exp."); } 
+    ;
 %%

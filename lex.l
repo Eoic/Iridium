@@ -33,6 +33,11 @@ linefeed        \n
 "->"                        { return METHOD_RETURN_TYPE; }
 "("                         { return PARENTHESIS_L; }
 ")"                         { return PARENTHESIS_R; }
+"+"                         { return PLUS; }
+"-"                         { return MINUS; }
+"*"                         { return MUL; }
+"/"                         { return DIV; }
+"%"                         { return MOD; }
 {whitespace}                ;
 {linefeed}                  ++yylineno;
 .
@@ -45,7 +50,6 @@ void yyerror(char* string) {
 
  // Called once end of the input file is reached. 
 int yywrap() {
-    puts("Done");
     return 1;
 }
 
