@@ -43,7 +43,8 @@ statement: statement
          | for_loop
          | while_loop;
 if_statement: IF BOX_BRACKET_L expr BOX_BRACKET_R body;
-assignment: variable EQ NUMBER
+assignment: variable EQ INT
           | variable EQ STRING
           | variable EQ FLOAT;
+variable: /* TO DO */;
 %%

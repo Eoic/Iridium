@@ -12,7 +12,7 @@ number          [0-9]+
 float           [+-]?([0-9]*[.])?[0-9]+
 whitespace      [\r\t\s]
 linefeed        \n
-string          (["'])(?:(?=(\\?))\2.)*?\1
+string          \"([^\\\"]|\\.)*\"
 
  // Token specification
 %%
