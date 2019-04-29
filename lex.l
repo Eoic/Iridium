@@ -18,8 +18,8 @@ string          \"([^\\\"]|\\.)*\"
 %%
 "Int" | "Double" | "String" { yylval.dataType = strdup(yytext); return DATA_TYPE; }
 {name}                      { return NAME; }
-{number}                    { return INT; }
-{float}                     { return FLOAT; }
+{number}                    { yylval.ival = atoi(yytext); return INT; }
+{float}                     { yylval.fval = areturn FLOAT; }
 {string}                    { return STRING; }
 "{"                         { return CURLY_BRACKET_L; }
 "}"                         { return CURLY_BRACKET_R; }

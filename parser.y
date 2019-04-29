@@ -30,10 +30,12 @@
 %%
 start : { printf("Started.\n"); } 
     ;
-expr: expr PLUS expr
-    | expr MINUS expr
-    | expr MUL expr
-    | expr DIV expr
+expr: variable          { $$ = $1; }
+    | expr PLUS expr    { $$ = $1 + $3; }
+    | expr MINUS expr   { $$ = $1 - $3; }
+    | expr MUL expr     { $$ = $1 * $3; }
+    | expr DIV expr     { $$ = $1 / $3; }
+    | expr MOD expr     { $$ = $1 % $3; }
     ;
 for_loop: LOOP BOX_BRACKET_L expr ';' expr ';' expr BOX_BRACKET_R body;
 while_loop: LOOP UNTIL BOX_BRACKET_L expr BOX_BRACKET_R body;
