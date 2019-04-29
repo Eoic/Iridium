@@ -20,12 +20,12 @@
  // Token declarations
 %token NAME NUMBER                                      // Variable / function name
 %token CURLY_BRACKET_L CURLY_BRACKET_R BOX_BRACKET_L    // Brackets and parentheses
-       BOX_BRACKET_R PARENTHESIS_L PARENTHESIS_R COMMA
-%token TYPE_ASSIGN METHOD_RETURN_TYPE                   // Types
-%token PLUS MINUS MUL DIV MOD POWER_BY                  // Arithmetic
+       BOX_BRACKET_R PARENTHESIS_L PARENTHESIS_R COMMA SEMICOLON
+%token TYPE_ASSIGN METHOD_RETURN_TYPE VOID              // Types
+%token PLUS MINUS MUL DIV MOD POWER_BY INC_OP DEC_OP                 // Arithmetic
 %token LT GT LTE GTE EQ CMP AND OR                      // Comparison and assignment
 %token INVERSE                                          // Misc
-%token IF LOOP UNTIL                                    // Keywords
+%token IF LOOP UNTIL                                   // Keywords
 
 %%
 start : { printf("Started.\n"); } 
