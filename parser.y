@@ -46,5 +46,8 @@ if_statement: IF BOX_BRACKET_L expr BOX_BRACKET_R body;
 assignment: variable EQ INT
           | variable EQ STRING
           | variable EQ FLOAT;
-variable: /* TO DO */;
+variable: variable
+		  | INT NAME SEMICOLON
+		  | FLOAT NAME SEMICOLON
+		  | STRING NAME SEMICOLON;
 %%

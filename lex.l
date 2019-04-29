@@ -47,7 +47,11 @@ string          \"([^\\\"]|\\.)*\"
 ","                         { return COMMA; }
 "if"                        { return IF; }
 "loop"                      { return LOOP; }
-"until"                     { return UNTIL; }                 
+"until"                     { return UNTIL; }    
+"void" 						{ return VOID; }         
+"++" 						{ return INC_OP; }
+"--" 						{ return DEC_OP; }
+";"                         { return SEMICOLON; }
 {whitespace}                ;
 {linefeed}                  ++yylineno;
 .                           yyterminate();
