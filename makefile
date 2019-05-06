@@ -1,9 +1,12 @@
 all:
 	${MAKE} lexer
 	${MAKE} parser
-	g++ parser.tab.c lex.yy.c -o compiler
+	${MAKE} llvm
 lexer:
-	flex lex.l
+	flex -o lex.cpp lex.l
 
 parser:
-	bison -d parser.y
+	bison -d -o parser.cpp parser.y
+
+llvm: 
+	g++ -o parser parser.cpp lex.cpp main.cpp -std=c++11 `llvm-config-7 --cppflags`

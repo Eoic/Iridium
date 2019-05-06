@@ -15,9 +15,9 @@
     Expression *expression;
     Statement *statement;
     Identifier *identifier;
-    VariableDeclaration *varDeclaration;
-    std::vector <VariableDeclaration> *variables;
-    std::vector <Expression> *expressions;
+    VariableDeclaration *var_declaration;
+    std::vector <VariableDeclaration*> *variables;
+    std::vector <Expression*> *expressions;
     std::string *string;
     int token;
 }
@@ -64,22 +64,21 @@ var_declaration : identifier TYPE_ASSIGN identifier                   { $$ = new
                 | identifier TYPE_ASSIGN identifier ASSIGN expression { $$ = new VariableDeclaration(*$3, *$1, $5); }
                 ;
 
-fun_declaration :                                          { $$ = new VariableList(); }
-                | function_arguments COMMA var_declaration { $1->push_back($<var_declaration>3); }
+fun_declaration : identifier PAREN_L function_arguments PAREN_R identifier METHOD_RETURN_ARROW identifier block { $$ = new FunctionDeclaration(*$7, *$1, *$3, *$8); delete $3; }
                 ;
 
-function_arguments : { $$ = new VariableList(); }
+function_arguments :                                          { $$ = new VariableList(); }
                    | function_arguments COMMA var_declaration { $1->push_back($<var_declaration>3); } 
 
 identifier : IDENTIFIER { $$ = new Identifier(*$1); delete $1; }
            ;
 
-numbers : INTEGER { $$ = new INTEGER(atol($1->c_str())); delete $1; }
-        | DOUBLE  { $$ = new DOUBLE(atof($1->c_str())); delete $1; }
+numbers : INTEGER { $$ = new Integer(atol($1->c_str())); delete $1; }
+        | DOUBLE  { $$ = new Double(atof($1->c_str())); delete $1; }
         ;
 
 expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
-           | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete *$3; }
+           | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
            | numbers
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
            | PAREN_L expression PAREN_R                { $$ = $2; }

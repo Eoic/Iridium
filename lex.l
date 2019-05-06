@@ -5,10 +5,10 @@
     #include "ast.h"
     #include "parser.tab.h"
     #define SAVE_VALUE yylval.string = new std::string(yytext, yyleng)
-    #define SAVE_TOKEN(token) (yylval.token = token) 
+    #define SAVE_TOKEN(match) (yylval.token = match) 
     void yyerror(char*);
     int yyparse();
-    int yywrap();
+    extern "C" int yywrap();
 %}
 
  // Regular expressions
@@ -20,9 +20,9 @@ linefeed        [\n]
 
  // Token specification
 %%
-{identifier}                { SAVE_VALUE(); return IDENTIFIER; }
-{integer}                   { SAVE_VALUE(); return INTEGER; }
-{double}                    { SAVE_VALUE(); return DOUBLE; }
+{identifier}                { SAVE_VALUE; return IDENTIFIER; }
+{integer}                   { SAVE_VALUE; return INTEGER; }
+{double}                    { SAVE_VALUE; return DOUBLE; }
 "{"                         { return SAVE_TOKEN(CURLY_BRACKET_L); }
 "}"                         { return SAVE_TOKEN(CURLY_BRACKET_R); }
 "["                         { return SAVE_TOKEN(BOX_BRACKET_L); }
@@ -61,7 +61,6 @@ void yyerror(char* string) {
     printf("Could not parse input.");
 }
 
- // Called once end of the input file is reached. 
 int yywrap() {
     return 1;
 }
