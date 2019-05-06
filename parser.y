@@ -34,7 +34,7 @@
 %token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc 
 
 %type <identifier>  identifier
-%type <expression>  numbers expression
+%type <expression>  numbers expression inversion
 %type <variables>   function_arguments
 %type <expressions> call_arguments
 %type <block>       program statements block
@@ -49,7 +49,7 @@
 program : statements { programBlock = $1; }
         ;
 
-statements : statement            { $$ = new Block(); $$->statement.push_back($<statement>1); }
+statements : statement            { $$ = new Block(); $$->statements.push_back($<statement>1); }
            | statements statement { $1->statements.push_back($<statement>2); }
            ;
 
@@ -61,7 +61,7 @@ block : CURLY_BRACKET_L statements CURLY_BRACKET_R { $$ = $2; }
       | CURLY_BRACKET_L CURLY_BRACKET_R            { $$ = new Block(); }
 
 var_declaration : identifier TYPE_ASSIGN identifier                   { $$ = new VariableDeclaration(*$3, *$1); }
-                : identifier TYPE_ASSIGN identifier ASSIGN expression { $$ = new VariableDeclaration(*$3, *$1, $5); }
+                | identifier TYPE_ASSIGN identifier ASSIGN expression { $$ = new VariableDeclaration(*$3, *$1, $5); }
                 ;
 
 fun_declaration :                                          { $$ = new VariableList(); }
@@ -91,5 +91,13 @@ call_arguments :                                 { $$ = new ExpressionList(); }
 
 inversion : INVERSE_OP identifier { $$ = new Inversion(*<identifier>2); }
           ;
+
+comparison : LT 
+           | GT 
+           | LTE 
+           | GTE 
+           | EQ 
+           | NEQ
+           ;
 
 %%
