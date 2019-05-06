@@ -34,7 +34,7 @@
 %token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc 
 
 %type <identifier>  identifier
-%type <expression>  expression
+%type <expression>  numbers expression
 %type <variables>   function_arguments
 %type <expressions> call_arguments
 %type <block>       program statements block
@@ -68,29 +68,28 @@ fun_declaration :                                          { $$ = new VariableLi
                 | function_arguments COMMA var_declaration { $1->push_back($<var_declaration>3); }
                 ;
 
+function_arguments : { $$ = new VariableList(); }
+                   | function_arguments COMMA var_declaration { $1->push_back($<var_declaration>3); } 
+
 identifier : IDENTIFIER { $$ = new Identifier(*$1); delete $1; }
            ;
 
-expr: variable          
-    | expr PLUS expr    { $$ = $1 + $3; }
-    | expr MINUS expr   { $$ = $1 - $3; }
-    | expr MUL expr     { $$ = $1 * $3; }
-    | expr DIV expr     { $$ = $1 / $3; }
-    | expr MOD expr     { $$ = $1 % $3; }
-    ;
-for_loop: LOOP BOX_BRACKET_L expr ';' expr ';' expr BOX_BRACKET_R body;
-while_loop: LOOP UNTIL BOX_BRACKET_L expr BOX_BRACKET_R body;
-body: statement | CURLY_BRACKET_L statement CURLY_BRACKET_R;
-statement: statement
-         | if_statement
-         | for_loop
-         | while_loop;
-if_statement: IF BOX_BRACKET_L expr BOX_BRACKET_R body;
-assignment: variable EQ INT
-          | variable EQ STRING
-          | variable EQ FLOAT;
-variable: variable
-		  | INT NAME SEMICOLON
-		  | FLOAT NAME SEMICOLON
-		  | STRING NAME SEMICOLON;
+numbers : INTEGER { $$ = new INTEGER(atol($1->c_str())); delete $1; }
+        | DOUBLE  { $$ = new DOUBLE(atof($1->c_str())); delete $1; }
+        ;
+
+expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
+           | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete *$3; }
+           | numbers
+           | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
+           | PAREN_L expression PAREN_R                { $$ = $2; }
+           ;
+
+call_arguments :                                 { $$ = new ExpressionList(); }
+               | expression                      { $$ = new ExpressionList(); $$->push_back($1); }
+               | call_arguments COMMA expression { $1->push_back($3); }
+
+inversion : INVERSE_OP identifier { $$ = new Inversion(*<identifier>2); }
+          ;
+
 %%

@@ -79,6 +79,14 @@ public:
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
+class Inversion : public Expression
+{
+public:
+    Identifier &id;
+    Inversion(Identifier &id) : id(id) {};
+    virtual llvm::Value *codeGen(CodeGenContext &context);
+}
+
 class Block : public Expression
 {
 public:
@@ -98,11 +106,11 @@ public:
 class VariableDeclaration : public Statement
 {
 public:
-    /*const */ Identifier &type;
+    Identifier &type;
     Identifier &id;
     Expression *assignmentExpr;
     VariableDeclaration(Identifier &type, Identifier &id) : type(type), id(id) {}
-    VariableDeclaration(Identifier &type, Identifier &id, Expression *assignmentExpr) : type(type), id(id), assignmentExpr(assignmentExpr) {}
+    VariableDeclaration(Identifier &type, Identifier &id, Expression *assignmentExpression) : type(type), id(id), assignmentExpr(assignmentExpression) {}
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
