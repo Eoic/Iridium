@@ -6,7 +6,7 @@
     #include "parser.hpp"
     #define SAVE_VALUE yylval.string = new std::string(yytext, yyleng)
     #define SAVE_TOKEN(match) (yylval.token = match) 
-    void yyerror(const char*);
+    void yyerror(char const*);
     int yyparse();
     extern "C" int yywrap();
 %}
@@ -57,7 +57,7 @@ linefeed        [\n]+
 %%
 
  // Called if input could not be parsed
-void yyerror(const char* string) {
+void yyerror(char const* string) {
     printf("Could not parse input: %s\n", string);
 }
 

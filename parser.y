@@ -4,7 +4,7 @@
     #include <stdlib.h>
     #include "ast.h" 
     extern int yylex();
-    extern void yyerror(char*);
+    extern void yyerror(char const*);
     Block *program;
 %}
 
