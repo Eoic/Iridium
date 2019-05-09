@@ -34,7 +34,7 @@
 %token <token>  PAREN_L PAREN_R COMMA SEMICOLON
 %token <token>  AND OR                          // Logical operators
 %token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc
-%token <token>  FOR WHILE IF ELSE ELSE_IF FUNCTION 
+%token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION 
 
 %type <identifier>  identifier
 %type <expression>  numbers expression
@@ -42,7 +42,7 @@
 %type <expressions> call_arguments
 %type <block>       program statements block
 %type <statement>   statement var_declaration fun_declaration
-%type <statement>   if_statement conditional for_loop while_loop
+%type <statement>   if_statement conditional loop
 %type <token>       comparison
 
 %left PLUS_OP MINUS_OP MUL_OP DIV_OP MOD_OP                    // Operators associativity 
@@ -59,7 +59,8 @@ statements : statement            { $$ = new Block(); $$->statements.push_back($
 
 statement : var_declaration | fun_declaration
           | expression { $$ = new ExpressionStatement(*$1); }
-          | conditional
+          | conditional {}
+          | loop    {}
           ;
 
 block : CURLY_BRACKET_L statements CURLY_BRACKET_R { $$ = $2; }
@@ -98,11 +99,13 @@ if_statement : IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
              ;
 
 conditional : if_statement { }
-            | if_statement ELSE_IF BOX_BRACKET_L expression BOX_BRACKET_R block  {  }
+            | if_statement ELSE_IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
             | conditional ELSE block
             ;
 
-loop : 
+loop : LOOP BOX_BRACKET_L var_declaration SEMICOLON expression SEMICOLON expression BOX_BRACKET_R block {}
+     | LOOP UNTIL BOX_BRACKET_L expression BOX_BRACKET_R block {}
+     ;
 
 comparison : LT 
            | GT 

@@ -10,6 +10,8 @@ VALID_CODE_SEGMENTS=(
     "if [10 > 20] {} else {}"
     "if [10 > 20] {} elsif [1 > 2] {}"
     "if [10 > 20] {} elsif [1 > 2] {} else {}" 
+    "loop [i : int = 0; i < 100; i++] {}"
+    "loop until [a > b] {}"
 )
 
 for i in "${VALID_CODE_SEGMENTS[@]}"; do

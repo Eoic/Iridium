@@ -24,8 +24,8 @@ linefeed        [\n]
 "else"                      { return SAVE_TOKEN(ELSE); }
 "elsif"                     { return SAVE_TOKEN(ELSE_IF); }
 "function"                  { return SAVE_TOKEN(FUNCTION); }
-"for"                       { return SAVE_TOKEN(FOR); }
-"while"                     { return SAVE_TOKEN(WHILE); }
+"loop"                      { return SAVE_TOKEN(LOOP); }
+"until"                     { return SAVE_TOKEN(UNTIL); }
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
 {double}                    { SAVE_VALUE; return DOUBLE; }
