@@ -70,6 +70,15 @@ public:
     virtual llvm::Value *codeGen(CodeGenContext &context){};
 };
 
+class UnaryOperator : public Expression
+{
+public:
+    int op;
+    Expression &exp;
+    UnaryOperator(Expression &exp, int op) : exp(exp), op(op) {}
+    virtual llvm::Value *codeGen(CodeGenContext &context){};
+};
+
 class Assignment : public Expression
 {
 public:

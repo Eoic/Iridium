@@ -86,7 +86,10 @@ numbers : INTEGER { $$ = new Integer(atol($1->c_str())); delete $1; }
 
 expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
+           | identifier                                { $<identifier>$ = $1; }
            | numbers
+           | expression INC_OP                         { $$ = new UnaryOperator(*$1, $2); } 
+           | expression DEC_OP                         { $$ = new UnaryOperator(*$1, $2); }
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
            | PAREN_L expression PAREN_R                { $$ = $2; } 
            ;
