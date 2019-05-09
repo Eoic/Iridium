@@ -88,14 +88,6 @@ public:
     virtual llvm::Value *codeGen(CodeGenContext &context){};
 };
 
-class Inversion : public Expression
-{
-public:
-    Identifier &id;
-    Inversion(Identifier &id) : id(id){};
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
-};
-
 class Block : public Expression
 {
 public:
