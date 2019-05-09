@@ -37,7 +37,7 @@
 %token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION 
 
 %type <identifier>  identifier
-%type <expression>  numbers expression
+%type <expression>  numbers expression arithmetic_expressions
 %type <variables>   function_arguments
 %type <expressions> call_arguments
 %type <block>       program statements block
@@ -84,12 +84,22 @@ numbers : INTEGER { $$ = new Integer(atol($1->c_str())); delete $1; }
         | DOUBLE  { $$ = new Double(atof($1->c_str())); delete $1; }
         ;
 
+arithmetic_expressions : expression INC_OP              { $$ = new UnaryOperator(*$1, $2); } 
+                       | expression DEC_OP              { $$ = new UnaryOperator(*$1, $2); }
+                       | expression INVERSE_OP          { $$ = new UnaryOperator(*$1, $2); }
+                       | expression PLUS_OP expression  { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       | expression MINUS_OP expression { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       | expression MUL_OP expression   { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       | expression DIV_OP expression   { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       | expression MOD_OP expression   { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       | expression POWER_OP expression { $$ = new BinaryOperator(*$1, $2, *$3); }
+                       ;
+
 expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
            | identifier                                { $<identifier>$ = $1; }
            | numbers
-           | expression INC_OP                         { $$ = new UnaryOperator(*$1, $2); } 
-           | expression DEC_OP                         { $$ = new UnaryOperator(*$1, $2); }
+           | arithmetic_expressions                 
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
            | PAREN_L expression PAREN_R                { $$ = $2; } 
            ;
@@ -101,7 +111,7 @@ call_arguments :                                 { $$ = new ExpressionList(); }
 if_statement : IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
              ;
 
-conditional : if_statement { }
+conditional : if_statement
             | if_statement ELSE_IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
             | conditional ELSE block
             ;

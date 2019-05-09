@@ -12,6 +12,12 @@ VALID_CODE_SEGMENTS=(
     "if [10 > 20] {} elsif [1 > 2] {} else {}" 
     "loop [i : int = 0; i < 100; i++] {}"
     "loop until [a > b] {}"
+    "sum = 10 + 20 + 40"
+    "difference = 100 - 52"
+    "product = 12 * 22"
+    "division = 1 / 52"
+    "mudulus = 168 % 24"
+    "power = 10 ^ 3"
 )
 
 for i in "${VALID_CODE_SEGMENTS[@]}"; do
