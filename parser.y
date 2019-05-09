@@ -33,14 +33,16 @@
 %token <token>  BOX_BRACKET_L BOX_BRACKET_R     
 %token <token>  PAREN_L PAREN_R COMMA SEMICOLON
 %token <token>  AND OR                          // Logical operators
-%token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc 
+%token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc
+%token <token>  FOR WHILE IF ELSE ELSE_IF FUNCTION 
 
 %type <identifier>  identifier
-%type <expression>  numbers expression inversion
+%type <expression>  numbers expression
 %type <variables>   function_arguments
 %type <expressions> call_arguments
 %type <block>       program statements block
 %type <statement>   statement var_declaration fun_declaration
+%type <statement>   if_statement conditional for_loop while_loop
 %type <token>       comparison
 
 %left PLUS_OP MINUS_OP MUL_OP DIV_OP MOD_OP                    // Operators associativity 
@@ -57,6 +59,7 @@ statements : statement            { $$ = new Block(); $$->statements.push_back($
 
 statement : var_declaration | fun_declaration
           | expression { $$ = new ExpressionStatement(*$1); }
+          | conditional
           ;
 
 block : CURLY_BRACKET_L statements CURLY_BRACKET_R { $$ = $2; }
@@ -66,10 +69,11 @@ var_declaration : identifier TYPE_ASSIGN identifier                   { $$ = new
                 | identifier TYPE_ASSIGN identifier ASSIGN expression { $$ = new VariableDeclaration(*$3, *$1, $5); }
                 ;
 
-fun_declaration : identifier PAREN_L function_arguments PAREN_R identifier METHOD_RETURN_ARROW identifier block { $$ = new FunctionDeclaration(*$7, *$1, *$3, *$8); delete $3; }
+fun_declaration : FUNCTION identifier PAREN_L function_arguments PAREN_R METHOD_RETURN_ARROW identifier block { $$ = new FunctionDeclaration(*$7, *$2, *$4, *$8); delete $4; }
                 ;
 
 function_arguments :                                          { $$ = new VariableList(); }
+                   | function_arguments var_declaration       { $1->push_back($<var_declaration>2); } 
                    | function_arguments COMMA var_declaration { $1->push_back($<var_declaration>3); } 
 
 identifier : IDENTIFIER { $$ = new Identifier(*$1); delete $1; }
@@ -83,15 +87,22 @@ expression : identifier ASSIGN expression              { $$ = new Assignment(*$<
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
            | numbers
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
-           | PAREN_L expression PAREN_R                { $$ = $2; }
+           | PAREN_L expression PAREN_R                { $$ = $2; } 
            ;
 
 call_arguments :                                 { $$ = new ExpressionList(); }
                | expression                      { $$ = new ExpressionList(); $$->push_back($1); }
                | call_arguments COMMA expression { $1->push_back($3); }
 
-inversion : INVERSE_OP identifier { $$ = new Inversion(*<identifier>2); }
-          ;
+if_statement : IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
+             ;
+
+conditional : if_statement { }
+            | if_statement ELSE_IF BOX_BRACKET_L expression BOX_BRACKET_R block  {  }
+            | conditional ELSE block
+            ;
+
+loop : 
 
 comparison : LT 
            | GT 

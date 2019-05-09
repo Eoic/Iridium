@@ -13,13 +13,19 @@
 
  // Regular expressions
 identifier      [a-zA-Z_][a-zA-Z0-9_]*
-double          [0-9]+.[0-9]*
+double          [+-]?([0-9]*[.])?[0-9]+
 integer         [0-9]+
-whitespace      [ \t\s]+
-linefeed        [\n]+
+whitespace      [ \t\s]*
+linefeed        [\n]
 
  // Token specification
 %%
+"if"                        { return SAVE_TOKEN(IF); }
+"else"                      { return SAVE_TOKEN(ELSE); }
+"elsif"                     { return SAVE_TOKEN(ELSE_IF); }
+"function"                  { return SAVE_TOKEN(FUNCTION); }
+"for"                       { return SAVE_TOKEN(FOR); }
+"while"                     { return SAVE_TOKEN(WHILE); }
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
 {double}                    { SAVE_VALUE; return DOUBLE; }

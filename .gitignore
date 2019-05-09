@@ -2,6 +2,7 @@ lex.cpp
 parser.cpp
 parser.hpp
 parser
+parser.output
 compiler
 .vscode/
 *.exe

@@ -26,13 +26,13 @@ loop until [a < b] {
 }
 
 // Sąlygos sakiniai
-if [a > b] then {
+if [a > b] then
     printLine('a is greater than b')
-} else if [b < a] then {
+else if [b < a] then {
     printLine('b is greater than a')
-} else {
-    printLine('a and b are equal')
-}
+else
+   printLine('a and b are equal')
+end
 
 // Skaitymas iš failo
 function readLines(path : string) -> string[] {
