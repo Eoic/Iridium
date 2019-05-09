@@ -3,10 +3,10 @@
     #include <string>
     #include <stdio.h>
     #include "ast.h"
-    #include "parser.tab.h"
+    #include "parser.hpp"
     #define SAVE_VALUE yylval.string = new std::string(yytext, yyleng)
     #define SAVE_TOKEN(match) (yylval.token = match) 
-    void yyerror(char*);
+    void yyerror(const char*);
     int yyparse();
     extern "C" int yywrap();
 %}
@@ -15,8 +15,8 @@
 identifier      [a-zA-Z_][a-zA-Z0-9_]*
 double          [0-9]+.[0-9]*
 integer         [0-9]+
-whitespace      [ \t\s]
-linefeed        [\n]
+whitespace      [ \t\s]+
+linefeed        [\n]+
 
  // Token specification
 %%
@@ -57,10 +57,11 @@ linefeed        [\n]
 %%
 
  // Called if input could not be parsed
-void yyerror(char* string) {
-    printf("Could not parse input.");
+void yyerror(const char* string) {
+    printf("Could not parse input: %s\n", string);
 }
 
 int yywrap() {
+    printf("Done parsing.");
     return 1;
 }

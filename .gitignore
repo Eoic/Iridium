@@ -1,5 +1,7 @@
-lex.yy.c
-parser.tab.*
+lex.cpp
+parser.cpp
+parser.hpp
+parser
 compiler
 .vscode/
 *.exe

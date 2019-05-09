@@ -5,7 +5,7 @@
     #include "ast.h" 
     extern int yylex();
     extern void yyerror(char*);
-    Block *programBlock;
+    Block *program;
 %}
 
  // Token types
@@ -21,6 +21,8 @@
     std::string *string;
     int token;
 }
+
+%error-verbose
 
 %token <string> IDENTIFIER INTEGER DOUBLE       // Variables
 %token <token>  GT LT GTE LTE EQ NEQ ASSIGN     // Comparing
@@ -41,12 +43,12 @@
 %type <statement>   statement var_declaration fun_declaration
 %type <token>       comparison
 
-%left PLUS MINUS MUL DIV MOD                    // Operators associativity 
+%left PLUS_OP MINUS_OP MUL_OP DIV_OP MOD_OP                    // Operators associativity 
 
 %start program
 
 %%
-program : statements { programBlock = $1; }
+program : statements { program = $1; }
         ;
 
 statements : statement            { $$ = new Block(); $$->statements.push_back($<statement>1); }
