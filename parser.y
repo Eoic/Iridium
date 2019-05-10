@@ -34,7 +34,7 @@
 %token <token>  PAREN_L PAREN_R COMMA SEMICOLON
 %token <token>  AND OR                          // Logical operators
 %token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc
-%token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION 
+%token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION RETURN
 
 %type <identifier>  identifier
 %type <expression>  numbers expression arithmetic_expressions
@@ -58,9 +58,10 @@ statements : statement            { $$ = new Block(); $$->statements.push_back($
            ;
 
 statement : var_declaration | fun_declaration
-          | expression { $$ = new ExpressionStatement(*$1); }
-          | conditional {}
-          | loop    {}
+          | expression                          { $$ = new ExpressionStatement(*$1); }
+          | conditional
+          | loop 
+          | RETURN expression                   { $$ = new ReturnStatement(*$2); }   
           ;
 
 block : CURLY_BRACKET_L statements CURLY_BRACKET_R { $$ = $2; }

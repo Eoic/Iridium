@@ -18,6 +18,7 @@ VALID_CODE_SEGMENTS=(
     "division = 1 / 52"
     "mudulus = 168 % 24"
     "power = 10 ^ 3"
+    "function returnString() -> int { return 10 }"
 )
 
 for i in "${VALID_CODE_SEGMENTS[@]}"; do

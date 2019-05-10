@@ -26,6 +26,7 @@ linefeed        [\n]
 "function"                  { return SAVE_TOKEN(FUNCTION); }
 "loop"                      { return SAVE_TOKEN(LOOP); }
 "until"                     { return SAVE_TOKEN(UNTIL); }
+"return"                    { return SAVE_TOKEN(RETURN); }
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
 {double}                    { SAVE_VALUE; return DOUBLE; }

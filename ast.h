@@ -2,7 +2,7 @@
 #include <vector>
 #include <llvm-7/llvm/IR/Value.h>
 
-class CodeGenContext;
+class LLVMContext;
 class Statement;
 class Expression;
 class VariableDeclaration;
@@ -15,7 +15,7 @@ class Node
 {
 public:
     virtual ~Node() {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class Expression : public Node
@@ -31,7 +31,7 @@ class Integer : public Expression
 public:
     long long value;
     Integer(long long value) : value(value) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class Double : public Expression
@@ -39,7 +39,7 @@ class Double : public Expression
 public:
     double value;
     Double(double value) : value(value) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class Identifier : public Expression
@@ -47,7 +47,7 @@ class Identifier : public Expression
 public:
     std::string name;
     Identifier(const std::string name) : name(name) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class MethodCall : public Expression
@@ -57,7 +57,7 @@ public:
     ExpressionList arguments;
     MethodCall(const Identifier &id) : id(id) {}
     MethodCall(const Identifier &id, ExpressionList &arguments) : id(id), arguments(arguments) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class BinaryOperator : public Expression
@@ -67,7 +67,7 @@ public:
     Expression &lhs;
     Expression &rhs;
     BinaryOperator(Expression &lhs, int op, Expression &rhs) : lhs(lhs), rhs(rhs) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class UnaryOperator : public Expression
@@ -76,7 +76,7 @@ public:
     int op;
     Expression &exp;
     UnaryOperator(Expression &exp, int op) : exp(exp), op(op) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class Assignment : public Expression
@@ -85,7 +85,7 @@ public:
     Identifier &lhs;
     Expression &rhs;
     Assignment(Identifier &lhs, Expression &rhs) : lhs(lhs), rhs(rhs) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class Block : public Expression
@@ -93,7 +93,7 @@ class Block : public Expression
 public:
     StatementList statements;
     Block() {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class ExpressionStatement : public Statement
@@ -101,7 +101,7 @@ class ExpressionStatement : public Statement
 public:
     Expression &expression;
     ExpressionStatement(Expression &expression) : expression(expression) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class VariableDeclaration : public Statement
@@ -109,10 +109,10 @@ class VariableDeclaration : public Statement
 public:
     Identifier &type;
     Identifier &id;
-    Expression *assignmentExpr;
+    Expression *assignmentExpression;
     VariableDeclaration(Identifier &type, Identifier &id) : type(type), id(id) {}
-    VariableDeclaration(Identifier &type, Identifier &id, Expression *assignmentExpression) : type(type), id(id), assignmentExpr(assignmentExpression) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    VariableDeclaration(Identifier &type, Identifier &id, Expression *assignmentExpression) : type(type), id(id), assignmentExpression(assignmentExpression) {}
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
 
 class FunctionDeclaration : public Statement
@@ -123,5 +123,13 @@ public:
     VariableList arguments;
     Block &block;
     FunctionDeclaration(const Identifier &type, const Identifier &id, const VariableList &arguments, Block &block) : type(type), id(id), arguments(arguments), block(block) {}
-    virtual llvm::Value *codeGen(CodeGenContext &context){};
+    virtual llvm::Value *generateCode(LLVMContext &context){};
+};
+
+class ReturnStatement : public Statement
+{
+public:
+    Expression &returnExpression;
+    ReturnStatement(Expression &returnExpression) : returnExpression(returnExpression) {}
+    virtual llvm::Value *generateCode(LLVMContext &context){};
 };
