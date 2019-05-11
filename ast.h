@@ -67,7 +67,7 @@ public:
     Expression &lhs;
     Expression &rhs;
     BinaryOperator(Expression &lhs, int op, Expression &rhs) : lhs(lhs), rhs(rhs) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class UnaryOperator : public Expression
@@ -85,7 +85,7 @@ public:
     Identifier &lhs;
     Expression &rhs;
     Assignment(Identifier &lhs, Expression &rhs) : lhs(lhs), rhs(rhs) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class Block : public Expression
@@ -93,7 +93,7 @@ class Block : public Expression
 public:
     StatementList statements;
     Block() {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class ExpressionStatement : public Statement
@@ -101,7 +101,7 @@ class ExpressionStatement : public Statement
 public:
     Expression &expression;
     ExpressionStatement(Expression &expression) : expression(expression) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class VariableDeclaration : public Statement
@@ -112,7 +112,7 @@ public:
     Expression *assignmentExpression;
     VariableDeclaration(Identifier &type, Identifier &id) : type(type), id(id) {}
     VariableDeclaration(Identifier &type, Identifier &id, Expression *assignmentExpression) : type(type), id(id), assignmentExpression(assignmentExpression) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class FunctionDeclaration : public Statement
@@ -123,7 +123,7 @@ public:
     VariableList arguments;
     Block &block;
     FunctionDeclaration(const Identifier &type, const Identifier &id, const VariableList &arguments, Block &block) : type(type), id(id), arguments(arguments), block(block) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class ReturnStatement : public Statement
@@ -131,5 +131,5 @@ class ReturnStatement : public Statement
 public:
     Expression &returnExpression;
     ReturnStatement(Expression &returnExpression) : returnExpression(returnExpression) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };

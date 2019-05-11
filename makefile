@@ -14,7 +14,7 @@ parser:
 	bison -v -t -d parser.y -o parser.cpp
 
 llvm: 
-	g++ parser.cpp lex.cpp generator.cpp main.cpp -std=c++11 -o parser `llvm-config-7 --cppflags --libs`
+	g++ parser.cpp lex.cpp generator.cpp main.cpp -std=c++11 -o compiler `llvm-config-7 --cppflags --libs`
 
 clean:
 	rm -f $(DEPENDENCIES) $(OBJECTS)
