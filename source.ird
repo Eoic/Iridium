@@ -1,1 +1,6 @@
-return 10 + 10
+function counter(number : Int) -> Int {
+    return 100
+}
+
+someDouble : Double = 225.5
+someInt : Int = 10000

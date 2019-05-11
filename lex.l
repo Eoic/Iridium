@@ -69,6 +69,6 @@ void yyerror(char const* string) {
 }
 
 int yywrap() {
-    std::cout << "Done parsing. " << std::endl;
+    std::cout << "No syntax errors detected." << std::endl;
     return 1;
 }

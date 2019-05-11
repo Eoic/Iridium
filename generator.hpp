@@ -1,4 +1,5 @@
 #include <stack>
+#include <iomanip>
 #include <llvm-7/llvm/IR/Module.h>
 #include <llvm-7/llvm/IR/LLVMContext.h>
 #include <llvm-7/llvm/ExecutionEngine/GenericValue.h>
@@ -29,13 +30,16 @@ class GeneratorContext
 {
     std::stack<GeneratorBlock *> blocks;
     llvm::Function *mainFunction;
+    bool verboseOutput;
+    int logNumber = 0;
 
 public:
     llvm::Module *module;
 
-    GeneratorContext()
+    GeneratorContext(bool verboseOutput)
     {
         module = new llvm::Module("main", llvmContext);
+        this->verboseOutput = verboseOutput;
     }
 
     void compileModule(Block &root);
@@ -75,5 +79,13 @@ public:
     llvm::Value* getCurrentReturnValue() 
     {
         return blocks.top()->returnValue;
+    }
+
+    void logMessage(const std::string message)
+    {
+        if(verboseOutput) {
+            std::string id = std::to_string(++logNumber) + ".";
+            std::cout << std::left << std::setw(5) << id << message << std::endl;
+        }
     }
 };

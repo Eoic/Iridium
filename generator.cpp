@@ -11,7 +11,7 @@
 // Create LLVM module object
 void GeneratorContext::compileModule(Block &root)
 {
-    std::cout << "Running code generation." << std::endl;
+    this->logMessage("Running code generation.");
 
     // Argument types list for start function
     std::vector<llvm::Type *> argumentTypes;
@@ -29,13 +29,19 @@ void GeneratorContext::compileModule(Block &root)
     popBlock();
 
     llvm::legacy::PassManager passManager;
-    passManager.add(llvm::createPrintModulePass(llvm::outs()));
+
+    if (verboseOutput) 
+        passManager.add(llvm::createPrintModulePass(llvm::outs()));
+    
+    std::cout << "Compiled successfully." << std::endl;
     passManager.run(*module);
 }
 
 // Execute code
 llvm::GenericValue GeneratorContext::runCode()
-{
+{   
+    this->logMessage("Running code.");
+
     // Process module with execution engine
     llvm::ExecutionEngine *executionEngine = llvm::EngineBuilder(std::unique_ptr<llvm::Module>(module)).create();
     executionEngine->finalizeObject();
@@ -49,8 +55,6 @@ llvm::GenericValue GeneratorContext::runCode()
 // Return LLVM type from given identifier
 static llvm::Type *typeOf(const Identifier &type)
 {
-    // TODO: Return string type on "String" identifier
-
     if (type.name.compare("Int") == 0)
         return llvm::Type::getInt64Ty(llvmContext);
     else if (type.name.compare("Double") == 0)
@@ -76,7 +80,7 @@ llvm::Value *Identifier::generateCode(GeneratorContext &context)
 {
     if (context.locals().find(name) == context.locals().end())
     {
-        std::cout << "Variable undeclared" << std::endl;
+        std::cerr << "Variable " << name << " is undeclared." << std::endl;
         return NULL;
     }
 
@@ -99,7 +103,7 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
         functionArguments.push_back((**it).generateCode(context));
 
     llvm::CallInst *functionCall = llvm::CallInst::Create(function, llvm::makeArrayRef(functionArguments), "", context.currentBlock());
-    std::cout << "Created function " << id.name.c_str() << std::endl;
+    context.logMessage("Created function " + id.name);
     return functionCall;
 }
 
@@ -138,7 +142,7 @@ llvm::Value *Assignment::generateCode(GeneratorContext &context)
 {
     if (context.locals().find(lhs.name) == context.locals().end())
     {
-        std::cout << "Variable " << lhs.name << " is undeclared." << std::endl;
+        std::cerr << "Variable " + lhs.name + " is undeclared." << std::endl;
         return NULL;
     }
 
@@ -153,22 +157,26 @@ llvm::Value *Block::generateCode(GeneratorContext &context)
 
     for (it = statements.begin(); it != statements.end(); it++)
     {
-        std::cout << "Generating code for " << typeid(**it).name() << std::endl;
+        std::string statementName = typeid(**it).name();
+        context.logMessage("Generating code for " + statementName);
         last = (**it).generateCode(context);
     }
 
-    std::cout << "Block created." << std::endl;
+    context.logMessage("Block created.");
 }
 
 llvm::Value *ExpressionStatement::generateCode(GeneratorContext &context)
 {
-    std::cout << "Code for " << typeid(expression).name() << std::endl;
+    std::string expressionName = typeid(expression).name();
+    context.logMessage("Generating code for expression " + expressionName);
     return expression.generateCode(context);
 }
 
 llvm::Value *ReturnStatement::generateCode(GeneratorContext &context)
 {
-    std::cout << "Generating return code for " << typeid(returnExpression).name() << std::endl;
+    std::string returnName = typeid(returnExpression).name();
+    context.logMessage("Generating return code for " + returnName);
+
     llvm::Value *returnValue = returnExpression.generateCode(context);
     context.setCurrentReturnValue(returnValue);
     return returnValue;
@@ -179,7 +187,7 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     unsigned int addressSpace = 64;
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
  
-    std::cout << "Declaring variable [" << id.name << "] of type [" << type.name << "]" << std::endl;
+    context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
     context.locals()[id.name] = allocationInstance;
 
@@ -223,6 +231,6 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
     llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), basicBlock);
     context.popBlock();
 
-    std::cout << "Created function " << id.name << std::endl;
+    context.logMessage("Created function " + id.name);
     return function;
 }
