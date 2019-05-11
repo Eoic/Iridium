@@ -30,16 +30,16 @@ void GeneratorContext::compileModule(Block &root)
 
     llvm::legacy::PassManager passManager;
 
-    if (verboseOutput) 
+    if (verboseOutput)
         passManager.add(llvm::createPrintModulePass(llvm::outs()));
-    
+
     std::cout << "Compiled successfully." << std::endl;
     passManager.run(*module);
 }
 
 // Execute code
 llvm::GenericValue GeneratorContext::runCode()
-{   
+{
     this->logMessage("Running code.");
 
     // Process module with execution engine
@@ -92,7 +92,7 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     // Get function by name from module
     llvm::StringRef functionName = llvm::StringRef(id.name);
     llvm::Function *function = context.module->getFunction(functionName);
-    
+
     if (function == NULL)
         std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
 
@@ -186,7 +186,7 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 {
     unsigned int addressSpace = 64;
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
- 
+
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
     context.locals()[id.name] = allocationInstance;
@@ -204,7 +204,7 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 {
     const llvm::Twine functionName = llvm::Twine(id.name.c_str());
-    std::vector <llvm::Type*> argumentTypes;
+    std::vector<llvm::Type *> argumentTypes;
     VariableList::const_iterator it;
 
     for (it = arguments.begin(); it != arguments.end(); it++)

@@ -66,7 +66,7 @@ public:
     int op;
     Expression &lhs;
     Expression &rhs;
-    BinaryOperator(Expression &lhs, int op, Expression &rhs) : lhs(lhs), rhs(rhs) {}
+    BinaryOperator(Expression &lhs, int op, Expression &rhs) : lhs(lhs), op(op), rhs(rhs) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
