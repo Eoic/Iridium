@@ -57,7 +57,8 @@ statements : statement            { $$ = new Block(); $$->statements.push_back($
            | statements statement { $1->statements.push_back($<statement>2); }
            ;
 
-statement : var_declaration | fun_declaration
+statement : var_declaration 
+          | fun_declaration
           | expression                          { $$ = new ExpressionStatement(*$1); }
           | conditional
           | loop 

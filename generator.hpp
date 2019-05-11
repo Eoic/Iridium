@@ -6,9 +6,12 @@
 #include <llvm-7/llvm/IR/LegacyPassManager.h>
 #include <llvm-7/llvm/IR/IRPrintingPasses.h>
 #include <llvm-7/llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm-7/llvm/IR/IRBuilder.h>
 
 class Block;
+
 static llvm::LLVMContext llvmContext;
+static llvm::IRBuilder<> builder(llvmContext);
 
 /**
  * Code block which contains basi block type from LLVM,

@@ -86,10 +86,11 @@ llvm::Value *Identifier::generateCode(GeneratorContext &context)
 llvm::Value *MethodCall::generateCode(GeneratorContext &context)
 {
     // Get function by name from module
-    llvm::Function *function = context.module->getFunction(id.name.c_str());
-
+    llvm::StringRef functionName = llvm::StringRef(id.name);
+    llvm::Function *function = context.module->getFunction(functionName);
+    
     if (function == NULL)
-        std::cout << "Function " << id.name.c_str() << " is undefined." << std::endl;
+        std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
 
     std::vector<llvm::Value *> functionArguments;
     ExpressionList::const_iterator it;
@@ -98,6 +99,7 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
         functionArguments.push_back((**it).generateCode(context));
 
     llvm::CallInst *functionCall = llvm::CallInst::Create(function, llvm::makeArrayRef(functionArguments), "", context.currentBlock());
+    std::cout << "Created function " << id.name.c_str() << std::endl;
     return functionCall;
 }
 
@@ -110,14 +112,19 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
     // Arithmetic operators
     case PLUS_OP:
         instruction = llvm::Instruction::Add;
+        break;
     case MINUS_OP:
         instruction = llvm::Instruction::Sub;
+        break;
     case MUL_OP:
         instruction = llvm::Instruction::Mul;
+        break;
     case DIV_OP:
         instruction = llvm::Instruction::SDiv;
+        break;
     case MOD_OP:
         instruction = llvm::Instruction::SRem;
+        break;
     default:
         return NULL;
         break;
@@ -146,7 +153,7 @@ llvm::Value *Block::generateCode(GeneratorContext &context)
 
     for (it = statements.begin(); it != statements.end(); it++)
     {
-        std::cout << "Code for " << typeid(**it).name() << std::endl;
+        std::cout << "Generating code for " << typeid(**it).name() << std::endl;
         last = (**it).generateCode(context);
     }
 
@@ -161,7 +168,7 @@ llvm::Value *ExpressionStatement::generateCode(GeneratorContext &context)
 
 llvm::Value *ReturnStatement::generateCode(GeneratorContext &context)
 {
-    std::cout << "Return code for " << typeid(returnExpression).name() << std::endl;
+    std::cout << "Generating return code for " << typeid(returnExpression).name() << std::endl;
     llvm::Value *returnValue = returnExpression.generateCode(context);
     context.setCurrentReturnValue(returnValue);
     return returnValue;
@@ -171,9 +178,8 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 {
     unsigned int addressSpace = 64;
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
-    //llvm::AllocaInst *alloc = new llvm::AllocaInst((llvm::Type *)typeOf(type), addrSpace, typeName, context.currentBlock());
-
-    std::cout << "Declaring variable " << type.name << " " << id.name << std::endl;
+ 
+    std::cout << "Declaring variable [" << id.name << "] of type [" << type.name << "]" << std::endl;
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
     context.locals()[id.name] = allocationInstance;
 
@@ -219,6 +225,4 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 
     std::cout << "Created function " << id.name << std::endl;
     return function;
-
-
 }

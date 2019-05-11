@@ -69,6 +69,6 @@ void yyerror(char const* string) {
 }
 
 int yywrap() {
-    printf("Done parsing.");
+    std::cout << "Done parsing. " << std::endl;
     return 1;
 }

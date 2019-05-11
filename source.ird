@@ -1,1 +1,1 @@
-number : Int = 100
+return 10 + 10
