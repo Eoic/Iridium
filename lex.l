@@ -57,6 +57,7 @@ linefeed        [\n]
 "++" 						{ return SAVE_TOKEN(INC_OP); }
 "--" 						{ return SAVE_TOKEN(DEC_OP); }
 ","                         { return SAVE_TOKEN(COMMA); }
+"|"                         { return SAVE_TOKEN(VERTICAL_BAR); }
 ";"                         { return SAVE_TOKEN(SEMICOLON); }
 {linefeed}                  ++yylineno;
 {whitespace}                ;

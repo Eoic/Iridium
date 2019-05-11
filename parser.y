@@ -34,7 +34,7 @@
 %token <token>  PAREN_L PAREN_R COMMA SEMICOLON
 %token <token>  AND OR                          // Logical operators
 %token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc
-%token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION RETURN
+%token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION RETURN VERTICAL_BAR
 
 %type <identifier>  identifier
 %type <expression>  numbers expression arithmetic_expressions

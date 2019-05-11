@@ -1,3 +1,10 @@
 number : Int
 number = 100
 @number
+
+function counter(number : Int) -> Int {
+    someCopy : Int = number
+    return someCopy
+}
+
+a : Int = counter(10)

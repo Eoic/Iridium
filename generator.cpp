@@ -99,7 +99,7 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     std::vector<llvm::Value *> functionArguments;
     ExpressionList::const_iterator it;
 
-    for (it = arguments.begin(); it != arguments.end(); it = it++)
+    for (it = arguments.begin(); it != arguments.end(); it++)
         functionArguments.push_back((**it).generateCode(context));
 
     llvm::CallInst *functionCall = llvm::CallInst::Create(function, llvm::makeArrayRef(functionArguments), "", context.currentBlock());
