@@ -6,6 +6,11 @@ extern Block *program; // AST tree root node pointer
 extern int yyparse();  // Builds parse tree
 extern FILE *yyin;     // Input stream file pointer
 
+void BindCoreFunctions(GeneratorContext *context)
+{
+    // TODO: Add print function
+}
+
 int main(int argCount, char **arguments)
 {
     bool verboseOutput = false;
@@ -21,6 +26,7 @@ int main(int argCount, char **arguments)
         verboseOutput = true;
     }
 
+    // Set input stream for parser
     if ((yyin = fopen(arguments[1], "r")) == 0)
     {
         std::cerr << "Could not find given file " << arguments[1] << std::endl;
@@ -29,6 +35,7 @@ int main(int argCount, char **arguments)
 
     yyparse();
     GeneratorContext *context = new GeneratorContext(verboseOutput);
+    BindCoreFunctions(context);
     context->compileModule(*program);
     context->runCode();
 }

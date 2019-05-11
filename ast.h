@@ -76,7 +76,16 @@ public:
     int op;
     Expression &exp;
     UnaryOperator(Expression &exp, int op) : exp(exp), op(op) {}
-    virtual llvm::Value *generateCode(GeneratorContext &context){};
+    virtual llvm::Value *generateCode(GeneratorContext &context);
+};
+
+class InversionOperator : public Expression
+{
+public:
+    int op;
+    Identifier &rhs;
+    InversionOperator(int op, Identifier &rhs) : op(op), rhs(rhs) {}
+    virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
 class Assignment : public Expression

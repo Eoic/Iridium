@@ -138,6 +138,55 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
                                         rhs.generateCode(context), "", context.currentBlock());
 }
 
+llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
+{
+    switch (op)
+    {
+    case INC_OP:
+
+        break;
+    case DEC_OP:
+
+        break;
+    default:
+        break;
+    }
+
+    return NULL;
+}
+
+llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
+{
+    // TODO: 
+    // 1. Get value of 
+    // 2. Change expression to identifier so its value could be acquired form locals map
+
+    if(op == INVERSE_OP) {
+        std::cout << "Inversion is not implemented yet." << std::endl;
+        std::cout << rhs.name << std::endl;
+        llvm::Value *value = context.locals().find(rhs.name)->second;
+        
+        std::string v = value->getName();
+        std::cout << v << std::endl;
+
+        
+        if(llvm::ConstantInt* cInt = llvm::dyn_cast<llvm::ConstantInt>(value))
+        {
+            std::cout << "Yes" << std::endl;
+        } else {
+            std::cout << "No" << std::endl;
+        }
+        
+        //int64_t number = cInt->getSExtValue();
+        
+
+
+        //std::cout << number << std::endl; 
+    }
+
+    return NULL;
+}
+
 llvm::Value *Assignment::generateCode(GeneratorContext &context)
 {
     if (context.locals().find(lhs.name) == context.locals().end())
@@ -172,6 +221,7 @@ llvm::Value *ExpressionStatement::generateCode(GeneratorContext &context)
     return expression.generateCode(context);
 }
 
+// Generates code for return statement
 llvm::Value *ReturnStatement::generateCode(GeneratorContext &context)
 {
     std::string returnName = typeid(returnExpression).name();
@@ -182,6 +232,7 @@ llvm::Value *ReturnStatement::generateCode(GeneratorContext &context)
     return returnValue;
 }
 
+// Generates code for variable declaration
 llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 {
     unsigned int addressSpace = 64;
@@ -201,6 +252,7 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     return allocationInstance;
 }
 
+// Generates code for function declaration
 llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 {
     const llvm::Twine functionName = llvm::Twine(id.name.c_str());

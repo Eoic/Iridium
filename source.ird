@@ -1,2 +1,3 @@
-number : Double
-number = 99 * 10
+number : Int
+number = 100
+@number

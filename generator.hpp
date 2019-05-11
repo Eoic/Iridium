@@ -8,6 +8,7 @@
 #include <llvm-7/llvm/IR/IRPrintingPasses.h>
 #include <llvm-7/llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm-7/llvm/IR/IRBuilder.h>
+#include <llvm-7/llvm/Support/Casting.h>
 
 class Block;
 

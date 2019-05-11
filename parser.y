@@ -88,8 +88,7 @@ numbers : INTEGER { $$ = new Integer(atol($1->c_str())); delete $1; }
 
 arithmetic_expressions : expression INC_OP              { $$ = new UnaryOperator(*$1, $2); } 
                        | expression DEC_OP              { $$ = new UnaryOperator(*$1, $2); }
-                       | expression INVERSE_OP          { $$ = new UnaryOperator(*$1, $2); }
-                       | expression PLUS_OP expression  { $$ = new BinaryOperator(*$1, $2, *$3); printf("Sum operation.\n"); }
+                       | expression PLUS_OP expression  { $$ = new BinaryOperator(*$1, $2, *$3); }
                        | expression MINUS_OP expression { $$ = new BinaryOperator(*$1, $2, *$3); }
                        | expression MUL_OP expression   { $$ = new BinaryOperator(*$1, $2, *$3); }
                        | expression DIV_OP expression   { $$ = new BinaryOperator(*$1, $2, *$3); }
@@ -99,6 +98,7 @@ arithmetic_expressions : expression INC_OP              { $$ = new UnaryOperator
 
 expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
+           | INVERSE_OP identifier                     { $$ = new InversionOperator($1, *$2); }
            | identifier                                { $<identifier>$ = $1; }
            | numbers
            | arithmetic_expressions                 
