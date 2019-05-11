@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ast.h"
+#include "generator.hpp"
 
 extern Block *program;
 extern int yyparse();
@@ -7,5 +8,7 @@ extern int yyparse();
 int main()
 {
     yyparse();
-    std::cout << program << std::endl;
+    GeneratorContext *context = new GeneratorContext();
+    context->compileModule(*program);
+    context->runCode();
 }

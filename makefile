@@ -1,5 +1,5 @@
 DEPENDENCIES := lex.cpp parser.cpp parser.hpp 
-OBJECTS := parser 
+OBJECTS := parser compiler parser.output
 
 all:
 	${MAKE} clean
@@ -11,10 +11,10 @@ lexer:
 	flex -o lex.cpp lex.l
 
 parser:
-	bison -v -t -d -o parser.cpp parser.y
+	bison -v -t -d parser.y -o parser.cpp
 
 llvm: 
-	g++ -o parser parser.cpp lex.cpp main.cpp -std=c++11 `llvm-config-7 --cppflags`
+	g++ parser.cpp lex.cpp generator.cpp main.cpp -std=c++11 -o parser `llvm-config-7 --cppflags --libs`
 
 clean:
 	rm -f $(DEPENDENCIES) $(OBJECTS)
