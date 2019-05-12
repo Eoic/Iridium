@@ -42,6 +42,14 @@ public:
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
+class String : public Expression
+{
+public:
+    const char* value;
+    String(const char* value) : value(value) {}
+    virtual llvm::Value *generateCode(GeneratorContext &context);
+};
+
 class Identifier : public Expression
 {
 public:
@@ -134,6 +142,14 @@ public:
     FunctionDeclaration(const Identifier &type, const Identifier &id, const VariableList &arguments, Block &block) : type(type), id(id), arguments(arguments), block(block) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
+
+// TODO: Define if statemetn
+/*
+class Conditional : public Statement
+{
+
+}
+*/
 
 class ReturnStatement : public Statement
 {

@@ -24,16 +24,16 @@
 
 %error-verbose
 
-%token <string> IDENTIFIER INTEGER DOUBLE       // Variables
-%token <token>  GT LT GTE LTE EQ NEQ ASSIGN     // Comparing
-%token <token>  PLUS_OP MINUS_OP MUL_OP DIV_OP  // Arithmetic Operators
+%token <string> IDENTIFIER INTEGER DOUBLE STRING    // Variables
+%token <token>  GT LT GTE LTE EQ NEQ ASSIGN         // Comparing
+%token <token>  PLUS_OP MINUS_OP MUL_OP DIV_OP      // Arithmetic Operators
 %token <token>  MOD_OP INVERSE_OP POWER_OP      
 %token <token>  INC_OP DEC_OP                   
-%token <token>  CURLY_BRACKET_L CURLY_BRACKET_R // Brackets and parentheses 
+%token <token>  CURLY_BRACKET_L CURLY_BRACKET_R     // Brackets and parentheses 
 %token <token>  BOX_BRACKET_L BOX_BRACKET_R     
 %token <token>  PAREN_L PAREN_R COMMA SEMICOLON
-%token <token>  AND OR                          // Logical operators
-%token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW // Misc
+%token <token>  AND OR                              // Logical operators
+%token <token>  TYPE_ASSIGN METHOD_RETURN_ARROW     // Misc
 %token <token>  LOOP UNTIL IF ELSE ELSE_IF FUNCTION RETURN VERTICAL_BAR
 
 %type <identifier>  identifier
@@ -84,6 +84,7 @@ identifier : IDENTIFIER { $$ = new Identifier(*$1); delete $1; }
 
 numbers : INTEGER { $$ = new Integer(atol($1->c_str())); delete $1; }
         | DOUBLE  { $$ = new Double(atof($1->c_str())); delete $1; }
+        | STRING  { $$ = new String($1->c_str()); delete $1; }
         ;
 
 arithmetic_expressions : expression INC_OP              { $$ = new UnaryOperator(*$1, $2); } 
@@ -100,7 +101,7 @@ expression : identifier ASSIGN expression              { $$ = new Assignment(*$<
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
            | INVERSE_OP identifier                     { $$ = new InversionOperator($1, *$2); }
            | identifier                                { $<identifier>$ = $1; }
-           | numbers
+           | numbers                                   
            | arithmetic_expressions                 
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
            | PAREN_L expression PAREN_R                { $$ = $2; } 

@@ -15,8 +15,10 @@
 identifier      [a-zA-Z_][a-zA-Z0-9_]*
 double          [+-]?([0-9]*[.])?[0-9]+
 integer         [0-9]+
+string          \'(\\.|[^"\\])*\'
 whitespace      [ \t\s]*
 linefeed        [\n]
+comment         [#]+.*
 
  // Token specification
 %%
@@ -27,9 +29,11 @@ linefeed        [\n]
 "loop"                      { return SAVE_TOKEN(LOOP); }
 "until"                     { return SAVE_TOKEN(UNTIL); }
 "return"                    { return SAVE_TOKEN(RETURN); }
+{comment}                   { puts("nothing"); }
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
 {double}                    { SAVE_VALUE; return DOUBLE; }
+{string}                    { SAVE_VALUE; return STRING; }
 "{"                         { return SAVE_TOKEN(CURLY_BRACKET_L); }
 "}"                         { return SAVE_TOKEN(CURLY_BRACKET_R); }
 "["                         { return SAVE_TOKEN(BOX_BRACKET_L); }

@@ -75,6 +75,12 @@ llvm::Value *Double::generateCode(GeneratorContext &context)
     return llvm::ConstantFP::get(llvm::Type::getDoubleTy(llvmContext), value);
 }
 
+llvm::Value *String::generateCode(GeneratorContext &context)
+{
+    std::cout << "string" << std::endl;
+    return NULL;
+}
+
 // Load variable identifier into memory
 llvm::Value *Identifier::generateCode(GeneratorContext &context)
 {
@@ -141,8 +147,7 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
         break;
     }
 
-    return llvm::BinaryOperator::Create(instruction, lhs.generateCode(context),
-                                        rhs.generateCode(context), "", context.currentBlock());
+    //return llvm::BinaryOperator::Create(instruction, lhs.generateCode(context), rhs.generateCode(context), "", context.currentBlock());
 }
 
 llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
@@ -170,10 +175,7 @@ llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 {
-    // TODO: 
-    // 1. Get value of 
-    // 2. Change expression to identifier so its value could be acquired form locals map
-
+    /*
     if(op == INVERSE_OP) {
         std::cout << "Inversion is not implemented yet." << std::endl;
         std::cout << rhs.name << std::endl;
@@ -182,20 +184,14 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
         std::string v = value->getName();
         std::cout << v << std::endl;
 
-        
-        if(llvm::ConstantInt* cInt = llvm::dyn_cast<llvm::ConstantInt>(value))
+        if(llvm::IntegerType* cInt = llvm::dyn_cast<llvm::IntegerType>(value))
         {
             std::cout << "Yes" << std::endl;
         } else {
             std::cout << "No" << std::endl;
         }
-        
-        //int64_t number = cInt->getSExtValue();
-        
-
-
-        //std::cout << number << std::endl; 
     }
+    */
 
     return NULL;
 }
