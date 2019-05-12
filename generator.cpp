@@ -99,12 +99,15 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     llvm::StringRef functionName = llvm::StringRef(id.name);
     llvm::Function *function = context.module->getFunction(functionName);
 
-    if (function == NULL) {
-        if(id.name.compare("print") != 0) {
+    if (function == NULL)
+    {
+        if (id.name.compare("print") != 0)
+        {
             std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
             return NULL;
         }
-        else {
+        else
+        {
             // Get or instert print function
         }
     }
@@ -123,6 +126,9 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
 llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
 {
     llvm::Instruction::BinaryOps instruction;
+    llvm::IRBuilder<> builder(context.currentBlock());
+    llvm::Value *lhsValue = lhs.generateCode(context);
+    llvm::Value *rhsValue = lhs.generateCode(context);
 
     switch (op)
     {
@@ -142,12 +148,25 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
     case MOD_OP:
         instruction = llvm::Instruction::SRem;
         break;
+    // Comparison operators
+    case EQ:
+        return builder.CreateICmpEQ(lhsValue, rhsValue);
+    case LT:
+        return builder.CreateICmpSLT(lhsValue, rhsValue);
+    case GT:
+        return builder.CreateICmpSGT(lhsValue, rhsValue);
+    case LTE:
+        return builder.CreateICmpSLE(lhsValue, rhsValue);
+    case GTE:
+        return builder.CreateICmpSGE(lhsValue, rhsValue);
+    case NEQ:
+        return builder.CreateICmpNE(lhsValue, rhsValue);
     default:
         return NULL;
         break;
     }
 
-    //return llvm::BinaryOperator::Create(instruction, lhs.generateCode(context), rhs.generateCode(context), "", context.currentBlock());
+    return llvm::BinaryOperator::Create(instruction, lhsValue, rhsValue, "", context.currentBlock());
 }
 
 llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
@@ -247,6 +266,12 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     unsigned int addressSpace = 64;
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
 
+    if (type.name.compare("String") == 0)
+    {
+        // TODO: generate code for string (char*) value
+        return NULL;
+    }
+
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
     context.locals()[id.name] = allocationInstance;
@@ -294,4 +319,10 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 
     context.logMessage("Created function " + id.name);
     return function;
+}
+
+llvm::Value *Conditional::generateCode(GeneratorContext &context)
+{
+    std::cout << "Yes, this is an if statement." << std::endl;
+    return NULL;
 }

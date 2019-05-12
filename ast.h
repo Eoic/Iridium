@@ -45,8 +45,8 @@ public:
 class String : public Expression
 {
 public:
-    const char* value;
-    String(const char* value) : value(value) {}
+    const char *value;
+    String(const char *value) : value(value) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
@@ -143,13 +143,17 @@ public:
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
-// TODO: Define if statemetn
-/*
 class Conditional : public Statement
 {
+public:
+    Expression *comparison;
+    Block *onTrue;
+    Block *onFalse;
 
-}
-*/
+    Conditional(Expression *comparison, Block *onTrue) : comparison(comparison), onTrue(onTrue) {}
+    Conditional(Expression *comparison, Block *onTrue, Block *onFalse) : comparison(comparison), onTrue(onTrue), onFalse(onFalse) {}
+    virtual llvm::Value *generateCode(GeneratorContext &context);
+};
 
 class ReturnStatement : public Statement
 {

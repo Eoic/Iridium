@@ -29,7 +29,7 @@ comment         [#]+.*
 "loop"                      { return SAVE_TOKEN(LOOP); }
 "until"                     { return SAVE_TOKEN(UNTIL); }
 "return"                    { return SAVE_TOKEN(RETURN); }
-{comment}                   { puts("nothing"); }
+{comment}                   ;
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
 {double}                    { SAVE_VALUE; return DOUBLE; }

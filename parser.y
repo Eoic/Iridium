@@ -42,7 +42,7 @@
 %type <expressions> call_arguments
 %type <block>       program statements block
 %type <statement>   statement var_declaration fun_declaration
-%type <statement>   if_statement conditional loop
+%type <statement>   conditional loop
 %type <token>       comparison
 
 %left PLUS_OP MINUS_OP MUL_OP DIV_OP MOD_OP                    // Operators associativity 
@@ -111,12 +111,8 @@ call_arguments :                                 { $$ = new ExpressionList(); }
                | expression                      { $$ = new ExpressionList(); $$->push_back($1); }
                | call_arguments COMMA expression { $1->push_back($3); }
 
-if_statement : IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
-             ;
-
-conditional : if_statement
-            | if_statement ELSE_IF BOX_BRACKET_L expression BOX_BRACKET_R block { }
-            | conditional ELSE block
+conditional : IF BOX_BRACKET_L expression BOX_BRACKET_R block ELSE block    { $$ = new Conditional($3, $5, $7); }
+            | IF BOX_BRACKET_L expression BOX_BRACKET_R block               { $$ = new Conditional($3, $5); }
             ;
 
 loop : LOOP BOX_BRACKET_L var_declaration SEMICOLON expression SEMICOLON expression BOX_BRACKET_R block {}
