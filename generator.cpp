@@ -93,8 +93,15 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     llvm::StringRef functionName = llvm::StringRef(id.name);
     llvm::Function *function = context.module->getFunction(functionName);
 
-    if (function == NULL)
-        std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
+    if (function == NULL) {
+        if(id.name.compare("print") != 0) {
+            std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
+            return NULL;
+        }
+        else {
+            // Get or instert print function
+        }
+    }
 
     std::vector<llvm::Value *> functionArguments;
     ExpressionList::const_iterator it;
@@ -140,19 +147,25 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
 
 llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 {
+    uint addressSpace = 64;
+    uint64_t value = 1;
+    llvm::ConstantInt *one = llvm::ConstantInt::get(llvmContext, llvm::APInt(addressSpace, value, false));
+    llvm::Instruction::BinaryOps instruction;
+
     switch (op)
     {
     case INC_OP:
-
+        instruction = llvm::Instruction::Add;
         break;
     case DEC_OP:
-
+        instruction = llvm::Instruction::Sub;
         break;
     default:
+        return NULL;
         break;
     }
 
-    return NULL;
+    return llvm::BinaryOperator::Create(instruction, exp.generateCode(context), one, "", context.currentBlock());
 }
 
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)

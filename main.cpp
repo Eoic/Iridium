@@ -6,9 +6,9 @@ extern Block *program; // AST tree root node pointer
 extern int yyparse();  // Builds parse tree
 extern FILE *yyin;     // Input stream file pointer
 
-void BindCoreFunctions(GeneratorContext *context)
+void BindCoreFunctions(GeneratorContext &context)
 {
-    // TODO: Add print function
+    //llvm::Constant *printFunction = context.module->getOrInsertFunction("printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(llvmContext), llvm::PointerType::getInt8PtrTy(llvmContext), 0), true);
 }
 
 int main(int argCount, char **arguments)
@@ -34,8 +34,8 @@ int main(int argCount, char **arguments)
     }
 
     yyparse();
-    GeneratorContext *context = new GeneratorContext(verboseOutput);
+    GeneratorContext context(verboseOutput);// = new GeneratorContext(verboseOutput);
     BindCoreFunctions(context);
-    context->compileModule(*program);
-    context->runCode();
+    context.compileModule(*program);
+    context.runCode();
 }

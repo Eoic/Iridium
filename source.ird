@@ -1,10 +1,4 @@
-number : Int
-number = 100
-@number
-
-function counter(number : Int) -> Int {
-    someCopy : Int = number
-    return someCopy
-}
-
-a : Int = counter(10)
+number : Int = 10
+number = 20
+number++
+nr : Int = number
