@@ -55,10 +55,13 @@ llvm::GenericValue GeneratorContext::runCode()
 // Return LLVM type from given identifier
 static llvm::Type *typeOf(const Identifier &type)
 {
+    // TODO: Make sure that returned string type is correct
     if (type.name.compare("Int") == 0)
         return llvm::Type::getInt64Ty(llvmContext);
     else if (type.name.compare("Double") == 0)
         return llvm::Type::getDoubleTy(llvmContext);
+    else if (type.name.compare("String") == 0)
+        return llvm::Type::getInt8PtrTy(llvmContext);
 
     return llvm::Type::getVoidTy(llvmContext);
 }
@@ -77,8 +80,39 @@ llvm::Value *Double::generateCode(GeneratorContext &context)
 
 llvm::Value *String::generateCode(GeneratorContext &context)
 {
-    std::cout << "string" << std::endl;
-    return NULL;
+    size_t pos = value.find("\\n");
+    if (pos != std::string::npos) {
+        value.replace(pos, 2, 1, '\n');
+    }
+    pos = value.find("\"");
+    value.erase(pos, 1);
+    pos = value.find("\"");
+    value.erase(pos, 1);
+
+const char *constValue = value.c_str();
+
+    // TODO: This mess...
+    // #################################################################################
+    llvm::Constant *format_const =
+            llvm::ConstantDataArray::getString(llvmContext, constValue);
+    llvm::GlobalVariable *var =
+            new llvm::GlobalVariable(
+                    *context.module, llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8),
+                                                          strlen(constValue) + 1),
+                    true, llvm::GlobalValue::PrivateLinkage, format_const, ".str");
+
+    llvm::Constant *zero =
+            llvm::Constant::getNullValue(llvm::IntegerType::getInt32Ty(llvmContext));
+
+    std::vector<llvm::Constant *> indices;
+    indices.push_back(zero);
+    indices.push_back(zero);
+    llvm::Constant *var_ref = llvm::ConstantExpr::getGetElementPtr(
+            llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8), strlen(constValue) + 1),
+            var, indices);
+
+    // #######################################################################################
+    return var_ref;
 }
 
 // Load variable identifier into memory
@@ -98,22 +132,28 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     // Get function by name from module
     llvm::StringRef functionName = llvm::StringRef(id.name);
     llvm::Function *function = context.module->getFunction(functionName);
+    llvm::IRBuilder<> builder(context.currentBlock()); // TODO: Use builder instead of CallInst
+    
+    // For called function
+    std::vector<llvm::Value *> functionArguments;
+    ExpressionList::const_iterator it;
 
     if (function == NULL)
     {
-        if (id.name.compare("print") != 0)
+        if (id.name.compare("printf") != 0)
         {
             std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
             return NULL;
         }
-        else
-        {
-            // Get or instert print function
+        else {
+            llvm::Constant *printFunction = context.module->getOrInsertFunction("printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(llvmContext), llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 0), true));
+
+            for (it = arguments.begin(); it != arguments.end(); it++)
+                functionArguments.push_back((**it).generateCode(context));
+
+            return builder.CreateCall(printFunction, functionArguments, "printfCall");
         }
     }
-
-    std::vector<llvm::Value *> functionArguments;
-    ExpressionList::const_iterator it;
 
     for (it = arguments.begin(); it != arguments.end(); it++)
         functionArguments.push_back((**it).generateCode(context));
@@ -128,7 +168,7 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
     llvm::Instruction::BinaryOps instruction;
     llvm::IRBuilder<> builder(context.currentBlock());
     llvm::Value *lhsValue = lhs.generateCode(context);
-    llvm::Value *rhsValue = lhs.generateCode(context);
+    llvm::Value *rhsValue = rhs.generateCode(context);
 
     switch (op)
     {

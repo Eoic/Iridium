@@ -15,7 +15,7 @@
 identifier      [a-zA-Z_][a-zA-Z0-9_]*
 double          [+-]?([0-9]*[.])?[0-9]+
 integer         [0-9]+
-string          \'(\\.|[^"\\])*\'
+string          \"(\\.|[^"\\])*\"
 whitespace      [ \t\s]*
 linefeed        [\n]
 comment         [#]+.*
