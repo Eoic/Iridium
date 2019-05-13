@@ -81,7 +81,8 @@ llvm::Value *Double::generateCode(GeneratorContext &context)
 llvm::Value *String::generateCode(GeneratorContext &context)
 {
     size_t pos = value.find("\\n");
-    if (pos != std::string::npos) {
+    if (pos != std::string::npos)
+    {
         value.replace(pos, 2, 1, '\n');
     }
     pos = value.find("\"");
@@ -89,27 +90,26 @@ llvm::Value *String::generateCode(GeneratorContext &context)
     pos = value.find("\"");
     value.erase(pos, 1);
 
-const char *constValue = value.c_str();
+    const char *constValue = value.c_str();
 
     // TODO: This mess...
     // #################################################################################
     llvm::Constant *format_const =
-            llvm::ConstantDataArray::getString(llvmContext, constValue);
+        llvm::ConstantDataArray::getString(llvmContext, constValue);
     llvm::GlobalVariable *var =
-            new llvm::GlobalVariable(
-                    *context.module, llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8),
-                                                          strlen(constValue) + 1),
-                    true, llvm::GlobalValue::PrivateLinkage, format_const, ".str");
+        new llvm::GlobalVariable(
+            *context.module, llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8), strlen(constValue) + 1),
+            true, llvm::GlobalValue::PrivateLinkage, format_const, ".str");
 
     llvm::Constant *zero =
-            llvm::Constant::getNullValue(llvm::IntegerType::getInt32Ty(llvmContext));
+        llvm::Constant::getNullValue(llvm::IntegerType::getInt32Ty(llvmContext));
 
     std::vector<llvm::Constant *> indices;
     indices.push_back(zero);
     indices.push_back(zero);
     llvm::Constant *var_ref = llvm::ConstantExpr::getGetElementPtr(
-            llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8), strlen(constValue) + 1),
-            var, indices);
+        llvm::ArrayType::get(llvm::IntegerType::get(llvmContext, 8), strlen(constValue) + 1),
+        var, indices);
 
     // #######################################################################################
     return var_ref;
@@ -133,19 +133,20 @@ llvm::Value *MethodCall::generateCode(GeneratorContext &context)
     llvm::StringRef functionName = llvm::StringRef(id.name);
     llvm::Function *function = context.module->getFunction(functionName);
     llvm::IRBuilder<> builder(context.currentBlock()); // TODO: Use builder instead of CallInst
-    
+
     // For called function
     std::vector<llvm::Value *> functionArguments;
     ExpressionList::const_iterator it;
 
     if (function == NULL)
     {
-        if (id.name.compare("printf") != 0)
+        if (id.name.compare("print") != 0)
         {
             std::cerr << "Function " << id.name.c_str() << " is undefined." << std::endl;
             return NULL;
         }
-        else {
+        else
+        {
             llvm::Constant *printFunction = context.module->getOrInsertFunction("printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(llvmContext), llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 0), true));
 
             for (it = arguments.begin(); it != arguments.end(); it++)
@@ -361,8 +362,33 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
     return function;
 }
 
+//std::cout << "Yes, this is an if statement." << std::endl;
 llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
-    std::cout << "Yes, this is an if statement." << std::endl;
+    llvm::IRBuilder<> builder(context.currentBlock());
+
+    // Conditional statement values
+    llvm::Value *conditionValue = comparison->generateCode(context);
+    llvm::Value *thenValue = onTrue->generateCode(context);
+    llvm::Value *elseValue = onFalse->generateCode(context);
+    
+    // Function
+    llvm::Function *function = context.currentBlock()->getParent();
+
+    // Blocks
+    llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
+    llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
+    llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
+
+    
+
+    //llvm::Value *result = builder.CreateICmpEQ(conditionValue, toCompare);
+    //if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(conditionValue)) {
+
+    //}
+    //} else {
+    //    std::cout << "Nice try..." << std::endl;
+    //}
+
     return NULL;
 }

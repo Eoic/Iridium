@@ -150,8 +150,16 @@ public:
     Block *onTrue;
     Block *onFalse;
 
-    Conditional(Expression *comparison, Block *onTrue) : comparison(comparison), onTrue(onTrue) {}
-    Conditional(Expression *comparison, Block *onTrue, Block *onFalse) : comparison(comparison), onTrue(onTrue), onFalse(onFalse) {}
+    Conditional(Expression *comparison, Block *onTrue) : comparison(comparison), onTrue(onTrue)
+    {
+        std::cout << typeid(*comparison).name() << std::endl;
+    }
+
+    Conditional(Expression *comparison, Block *onTrue, Block *onFalse) : comparison(comparison), onTrue(onTrue), onFalse(onFalse)
+    {
+        std::cout << typeid(*comparison).name() << std::endl;
+    }
+
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 

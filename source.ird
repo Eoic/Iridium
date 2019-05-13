@@ -1,21 +1,6 @@
-a : Int = 100
-b : Int = 10
-d : Double = 3.1415926535897
-
-if [a < b] {
-
-} else {
-
+function printer() -> Void {
+    return 10
 }
 
-# Int32 -- (-2,147,483,648 to +2,147,483,647)
-# Int64 -- (-9,223,372,036,854,775,808 to +9,223,372,036,854,775,807)
-# Its 32 bits ... 
-
-function count(number : Int) -> Int {
-    printf("%d \n", number)
-}
-
-count(10)
-
-printf("Number: %d \n", a++)
+someNum : Int = 10
+someNum = printer()
