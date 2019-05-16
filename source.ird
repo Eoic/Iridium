@@ -1,6 +1,4 @@
-function printer() -> Void {
-    return 10
-}
-
-someNum : Int = 10
-someNum = printer()
+a : Int = 10
+b : Int = 20
+c : Int = 30
+if[10 < 10]{}  

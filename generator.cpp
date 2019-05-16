@@ -367,10 +367,13 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
     llvm::IRBuilder<> builder(context.currentBlock());
 
-    // Conditional statement values
+    //Generate condition value code
     llvm::Value *conditionValue = comparison->generateCode(context);
-    llvm::Value *thenValue = onTrue->generateCode(context);
-    llvm::Value *elseValue = onFalse->generateCode(context);
+
+    //TODO: fix this (value types dont match in CreatePHI)
+    //If condition converted to bool value
+    conditionValue = builder.CreateICmpNE(conditionValue, llvm::ConstantInt::get(llvm::Type::getInt64Ty(llvmContext), 0), "ifcondition");
+    //conditionValue = builder.CreateFCmpONE(conditionValue, llvm::ConstantFP::get(llvmContext, llvm::APFloat(0.0)), "ifcond");
     
     // Function
     llvm::Function *function = context.currentBlock()->getParent();
@@ -380,8 +383,52 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
 
-    
+    //Create copnditional intsruction
+    builder.CreateCondBr(conditionValue, thenBlock, elseBlock);
 
+    //Set instruction insertion point to thenBlock
+    builder.SetInsertPoint(thenBlock);
+
+    llvm::Value *thenValue = onTrue->generateCode(context);
+    if(!thenValue)
+        return nullptr;
+
+    //Emit instrucion: "jump to mergeBlock (block executed after then and else)"
+    builder.CreateBr(mergeBlock);
+
+    //Code generation of thenBlock can change current block, need to update
+    thenBlock = builder.GetInsertBlock();
+
+    //Now insert else block
+    function->getBasicBlockList().push_back(elseBlock);
+    builder.SetInsertPoint(elseBlock);
+
+    //Generate else block code
+    llvm::Value *elseValue = onFalse->generateCode(context);
+    if(!elseValue)
+        return nullptr;
+
+    //Create jmp to merge block instruction
+    builder.CreateBr(mergeBlock);
+
+    //Code generation of elseBlock can change current block, need to update
+    elseBlock = builder.GetInsertBlock();
+
+    //Emit mergeBlock
+    function->getBasicBlockList().push_back(mergeBlock);
+    builder.SetInsertPoint(mergeBlock);
+
+    std::cout << "Creating PHINode \n";
+    //TODO: fix this (value types dont match in CreatePHI)
+    llvm::PHINode *phiNode = builder.CreatePHI(llvm::Type::getInt64Ty(llvmContext), 2, "iftemp");
+
+    std::cout << "Adding PHINode values\n";
+
+
+    phiNode->addIncoming(thenValue, thenBlock);
+    std::cout << "Added then value\n";
+
+    phiNode->addIncoming(elseValue, elseBlock);
     //llvm::Value *result = builder.CreateICmpEQ(conditionValue, toCompare);
     //if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(conditionValue)) {
 
@@ -389,6 +436,6 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     //} else {
     //    std::cout << "Nice try..." << std::endl;
     //}
-
-    return NULL;
+    std::cout << "Returning PHINode\n";
+    return phiNode;
 }
