@@ -1,4 +1,8 @@
 a : Int = 10
 b : Int = 20
-c : Int = 30
-if[10 < 10]{}  
+
+if [a == b] {
+
+} else {
+
+}
