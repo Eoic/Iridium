@@ -1,22 +1,3 @@
-a : Int = 10
-b : Int = 20
-x : Int = 111
+value : String = "hello"
 
-if [a == b] {
-    x : Int = 777
-}
-else {
-    x = 888
-}
-
-print("%d\n", 100)
-
-fb : Int = 0
-function fibonacci() -> Int {
-    if[10 < 11]{
-        return 0
-    }
-}
-
-result : Int = fibonacci()
-print("%d\n", result)
+print("%s\n", value)

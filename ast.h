@@ -91,8 +91,8 @@ class InversionOperator : public Expression
 {
 public:
     int op;
-    Identifier &rhs;
-    InversionOperator(int op, Identifier &rhs) : op(op), rhs(rhs) {}
+    Expression &rhs;
+    InversionOperator(int op, Expression &rhs) : op(op), rhs(rhs) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 

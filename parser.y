@@ -99,10 +99,10 @@ arithmetic_expressions : expression INC_OP              { $$ = new UnaryOperator
 
 expression : identifier ASSIGN expression              { $$ = new Assignment(*$<identifier>1, *$3); }
            | identifier PAREN_L call_arguments PAREN_R { $$ = new MethodCall(*$1, *$3); delete $3; }
-           | INVERSE_OP identifier                     { $$ = new InversionOperator($1, *$2); }
            | identifier                                { $<identifier>$ = $1; }
            | numbers                                   
-           | arithmetic_expressions                 
+           | arithmetic_expressions
+           | INVERSE_OP expression                     { $$ = new InversionOperator($1, *$2); }                 
            | expression comparison expression          { $$ = new BinaryOperator(*$1, $2, *$3); }
            | PAREN_L expression PAREN_R                { $$ = $2; } 
            ;

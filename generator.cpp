@@ -235,25 +235,24 @@ llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 {
-    /*
-    if(op == INVERSE_OP) {
-        std::cout << "Inversion is not implemented yet." << std::endl;
-        std::cout << rhs.name << std::endl;
-        llvm::Value *value = context.locals().find(rhs.name)->second;
-        
-        std::string v = value->getName();
-        std::cout << v << std::endl;
+    llvm::Value *invertedValue;
 
-        if(llvm::IntegerType* cInt = llvm::dyn_cast<llvm::IntegerType>(value))
-        {
-            std::cout << "Yes" << std::endl;
-        } else {
-            std::cout << "No" << std::endl;
+    if (dynamic_cast<Integer *>(&rhs)) {
+        Integer *integer = dynamic_cast<Integer *>(&rhs);
+        int64_t reverse = 0;
+        int64_t rem;
+
+        while (integer->value != 0) {
+            rem = integer->value % 10;
+            reverse = reverse * 10 + rem;
+            integer->value /= 10;
         }
-    }
-    */
 
-    return NULL;
+        integer->value = reverse;
+        return integer->generateCode(context);
+    } 
+
+    return invertedValue;
 }
 
 llvm::Value *Assignment::generateCode(GeneratorContext &context)
@@ -309,8 +308,9 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 
     if (type.name.compare("String") == 0)
     {
-        // TODO: generate code for string (char*) value
-        return NULL;
+        llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 8), 64, typeName, context.currentBlock());
+        context.locals()[id.name] = allocationInstance;
+        return allocationInstance;
     }
 
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
@@ -397,9 +397,9 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     }
 
     function->getBasicBlockList().push_back(mergeBlock);
+    auto returnInst = llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue());
     context.pushBlock(mergeBlock);
-    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), mergeBlock);
-
+    
     std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl; 
 
     //builder.CreateCondBr(conditionValue, ifBlock, elseBlock);
