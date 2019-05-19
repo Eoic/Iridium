@@ -147,19 +147,14 @@ class Conditional : public Statement
 {
 public:
     Expression *comparison;
-    Block *onTrue;
-    Block *onFalse;
+    Block *thenBlockNode;
+    Block *elseBlockNode;
 
-    Conditional(Expression *comparison, Block *onTrue) : comparison(comparison), onTrue(onTrue)
+    Conditional(Expression *comparison, Block *thenBlockNode) : comparison(comparison), thenBlockNode(thenBlockNode)
     {
-        std::cout << typeid(*comparison).name() << std::endl;
+        elseBlockNode = nullptr;
     }
-
-    Conditional(Expression *comparison, Block *onTrue, Block *onFalse) : comparison(comparison), onTrue(onTrue), onFalse(onFalse)
-    {
-        std::cout << typeid(*comparison).name() << std::endl;
-    }
-
+    Conditional(Expression *comparison, Block *thenBlockNode, Block *elseBlockNode) : comparison(comparison), thenBlockNode(thenBlockNode), elseBlockNode(elseBlockNode) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 

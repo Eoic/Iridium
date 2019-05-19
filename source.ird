@@ -2,7 +2,7 @@ a : Int = 10
 b : Int = 20
 
 if [a == b] {
-
+    print("%s\n", "True")
 } else {
-
+    print("%s\n", "False")
 }

@@ -365,19 +365,42 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 //std::cout << "Yes, this is an if statement." << std::endl;
 llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
-    llvm::IRBuilder<> builder(context.currentBlock());
-    llvm::Value *conditionValue = comparison->generateCode(context);
-
-    // 0 => false, 1 => true
-    conditionValue = builder.CreateICmpNE(conditionValue, builder.getInt1(false), "ifcond");
+    //
+    //conditionValue = builder.CreateICmpNE(conditionValue, builder.getInt1(false), "ifcond");
     llvm::Function *function = context.currentBlock()->getParent();
 
     // Blocks for branches
-    llvm::BasicBlock *ifBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
+    llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
     llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
 
-    llvm::BranchInst *branch = llvm::BranchInst::Create(ifBlock, elseBlock, conditionValue, context.currentBlock()); 
+    // Insert if block to function
+    function->getBasicBlockList().push_back(thenBlock);
+    llvm::Value *conditionValue = comparison->generateCode(context);
+
+    if (elseBlockNode != nullptr)
+        llvm::BranchInst::Create(thenBlock, elseBlock, conditionValue, context.currentBlock());
+    else llvm::BranchInst::Create(thenBlock, mergeBlock, conditionValue, context.currentBlock());
+
+    // To matc variables
+    context.pushBlock(thenBlock);
+    llvm::Value *thenValue = thenBlockNode->generateCode(context);
+    llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+    context.popBlock();
+
+    if (elseBlockNode != nullptr) {
+        function->getBasicBlockList().push_back(elseBlock);
+        context.pushBlock(elseBlock);
+        llvm::Value *elseValue = elseBlockNode->generateCode(context);
+        llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+        context.popBlock();
+    }
+
+    function->getBasicBlockList().push_back(mergeBlock);
+    context.pushBlock(mergeBlock);
+    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), mergeBlock);
+
+    std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl; 
 
     //builder.CreateCondBr(conditionValue, ifBlock, elseBlock);
     //builder.SetInsertPoint(elseBlock);
