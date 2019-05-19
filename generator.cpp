@@ -25,7 +25,7 @@ void GeneratorContext::compileModule(Block &root)
 
     pushBlock(block);
     root.generateCode(*this);
-    llvm::ReturnInst::Create(llvmContext, this->currentBlock());
+    llvm::ReturnInst::Create(llvmContext, block);
     popBlock();
 
     llvm::legacy::PassManager passManager;
@@ -398,6 +398,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 
     function->getBasicBlockList().push_back(mergeBlock);
     context.pushBlock(mergeBlock);
+    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), mergeBlock);
 
     std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl; 
 

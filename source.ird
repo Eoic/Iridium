@@ -1,11 +1,22 @@
 a : Int = 10
 b : Int = 20
-c : Int = 0
+x : Int = 111
 
 if [a == b] {
-    print("%s\n", "True")
+    x : Int = 777
 }
 else {
-    print("%s\n", "False")
+    x = 888
 }
-print("%s\n", "Merge")
+
+print("%d\n", 100)
+
+fb : Int = 0
+function fibonacci() -> Int {
+    if[10 < 11]{
+        return 0
+    }
+}
+
+result : Int = fibonacci()
+print("%d\n", result)
