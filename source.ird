@@ -1,3 +1,4 @@
-value : String = "hello"
-
-print("%s\n", value)
+text : String = @"Hello there."
+number : Int = @123456789
+print("Fliped string: %s\n", text)
+print("Fliped integer: %d\n", number)

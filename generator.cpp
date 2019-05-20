@@ -1,6 +1,7 @@
 #include "ast.h"
 #include "generator.hpp"
 #include "parser.hpp"
+#include <algorithm>
 
 /*
     Modules containt functions
@@ -80,6 +81,8 @@ llvm::Value *Double::generateCode(GeneratorContext &context)
 
 llvm::Value *String::generateCode(GeneratorContext &context)
 {
+    // TODO: This mess...
+    // #################################################################################
     size_t pos = value.find("\\n");
     if (pos != std::string::npos)
     {
@@ -92,8 +95,6 @@ llvm::Value *String::generateCode(GeneratorContext &context)
 
     const char *constValue = value.c_str();
 
-    // TODO: This mess...
-    // #################################################################################
     llvm::Constant *format_const =
         llvm::ConstantDataArray::getString(llvmContext, constValue);
     llvm::GlobalVariable *var =
@@ -235,14 +236,16 @@ llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 {
-    llvm::Value *invertedValue;
+    llvm::Value *invertedValue = NULL;
 
-    if (dynamic_cast<Integer *>(&rhs)) {
+    if (dynamic_cast<Integer *>(&rhs))
+    {
         Integer *integer = dynamic_cast<Integer *>(&rhs);
         int64_t reverse = 0;
         int64_t rem;
 
-        while (integer->value != 0) {
+        while (integer->value != 0)
+        {
             rem = integer->value % 10;
             reverse = reverse * 10 + rem;
             integer->value /= 10;
@@ -250,7 +253,13 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 
         integer->value = reverse;
         return integer->generateCode(context);
-    } 
+    }
+    else if (dynamic_cast<String *>(&rhs))
+    {
+        String *string = dynamic_cast<String *>(&rhs);
+        std::reverse(string->value.begin(), string->value.end()); 
+        return string->generateCode(context);
+    }
 
     return invertedValue;
 }
@@ -308,8 +317,15 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
 
     if (type.name.compare("String") == 0)
     {
-        llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 8), 64, typeName, context.currentBlock());
+        llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 8), 8, typeName, context.currentBlock());
         context.locals()[id.name] = allocationInstance;
+
+        if (assignmentExpression != NULL)
+        {
+            Assignment assignment(id, *assignmentExpression);
+            assignment.generateCode(context);
+        }
+
         return allocationInstance;
     }
 
@@ -380,7 +396,8 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 
     if (elseBlockNode != nullptr)
         llvm::BranchInst::Create(thenBlock, elseBlock, conditionValue, context.currentBlock());
-    else llvm::BranchInst::Create(thenBlock, mergeBlock, conditionValue, context.currentBlock());
+    else
+        llvm::BranchInst::Create(thenBlock, mergeBlock, conditionValue, context.currentBlock());
 
     // To matc variables
     context.pushBlock(thenBlock);
@@ -388,7 +405,8 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     llvm::BranchInst::Create(mergeBlock, context.currentBlock());
     context.popBlock();
 
-    if (elseBlockNode != nullptr) {
+    if (elseBlockNode != nullptr)
+    {
         function->getBasicBlockList().push_back(elseBlock);
         context.pushBlock(elseBlock);
         llvm::Value *elseValue = elseBlockNode->generateCode(context);
@@ -399,8 +417,8 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     function->getBasicBlockList().push_back(mergeBlock);
     auto returnInst = llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue());
     context.pushBlock(mergeBlock);
-    
-    std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl; 
+
+    std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl;
 
     //builder.CreateCondBr(conditionValue, ifBlock, elseBlock);
     //builder.SetInsertPoint(elseBlock);

@@ -46,7 +46,7 @@ class String : public Expression
 {
 public:
     std::string value;
-    String(std::string value) : value(value) {}
+    String(std::string value) : value(value) { }
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
 
