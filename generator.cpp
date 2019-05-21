@@ -34,7 +34,7 @@ void GeneratorContext::compileModule(Block &root)
     if (verboseOutput)
         passManager.add(llvm::createPrintModulePass(llvm::outs()));
 
-    std::cout << "Compiled successfully." << std::endl;
+    std::cout << "Compiled successfully." << std::endl << std::endl;
     passManager.run(*module);
 }
 
@@ -56,7 +56,6 @@ llvm::GenericValue GeneratorContext::runCode()
 // Return LLVM type from given identifier
 static llvm::Type *typeOf(const Identifier &type)
 {
-    // TODO: Make sure that returned string type is correct
     if (type.name.compare("Int") == 0)
         return llvm::Type::getInt64Ty(llvmContext);
     else if (type.name.compare("Double") == 0)
@@ -315,20 +314,6 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     unsigned int addressSpace = 64;
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
 
-    if (type.name.compare("String") == 0)
-    {
-        llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(llvm::PointerType::get(llvm::Type::getInt8Ty(llvmContext), 8), 8, typeName, context.currentBlock());
-        context.locals()[id.name] = allocationInstance;
-
-        if (assignmentExpression != NULL)
-        {
-            Assignment assignment(id, *assignmentExpression);
-            assignment.generateCode(context);
-        }
-
-        return allocationInstance;
-    }
-
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
     context.locals()[id.name] = allocationInstance;
@@ -378,10 +363,8 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
     return function;
 }
 
-//std::cout << "Yes, this is an if statement." << std::endl;
 llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
-    //
     //conditionValue = builder.CreateICmpNE(conditionValue, builder.getInt1(false), "ifcond");
     llvm::Function *function = context.currentBlock()->getParent();
 
@@ -415,10 +398,10 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     }
 
     function->getBasicBlockList().push_back(mergeBlock);
-    auto returnInst = llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue());
     context.pushBlock(mergeBlock);
+    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
 
-    std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl;
+    std::cout << "----" << std::endl;
 
     //builder.CreateCondBr(conditionValue, ifBlock, elseBlock);
     //builder.SetInsertPoint(elseBlock);

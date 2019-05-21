@@ -74,6 +74,6 @@ void yyerror(char const* string) {
 }
 
 int yywrap() {
-    std::cout << "No syntax errors detected." << std::endl;
+    //std::cout << "No syntax errors detected." << std::endl;
     return 1;
 }

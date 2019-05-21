@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include "ast.h"
 #include "generator.hpp"
 
@@ -6,36 +7,40 @@ extern Block *program; // AST tree root node pointer
 extern int yyparse();  // Builds parse tree
 extern FILE *yyin;     // Input stream file pointer
 
-void BindCoreFunctions(GeneratorContext &context)
+void checkFlags(int argCount, char **arguments, bool *verboseOutput)
 {
-    //llvm::Constant *printFunction = context.module->getOrInsertFunction("printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(llvmContext), llvm::PointerType::getInt8PtrTy(llvmContext), 0), true);
+    for (int i = 0; i < argCount; i++)
+        if (std::strcmp(arguments[i], "-v") == 0)
+            *verboseOutput = true;
 }
 
 int main(int argCount, char **arguments)
 {
     bool verboseOutput = false;
+    checkFlags(argCount, arguments, &verboseOutput);
+    GeneratorContext context(verboseOutput);
 
-    if (argCount > 2)
+    // Invalid parameters
+    if (argCount < 2)
+        std::cerr << "Use: " << arguments[0] << " <program.ird>" << std::endl;
+
+    // Compile given files
+    for (int i = 1; i < argCount; i++)
     {
-        if (std::strcmp(arguments[2], "-v") != 0)
+        if (std::strcmp(arguments[i], "-v") == 0)
+            continue;
+
+        std::cout << "-----------------------------------------------------------" << std::endl;
+        std::cout << "Compiling source file: [" << arguments[i] << "]" << std::endl;
+
+        if ((yyin = fopen(arguments[i], "r")) == 0)
         {
-            std::cerr << "Use: " << arguments[0] << " <program.ird>" << std::endl;
-            return 1;
+            std::cerr << "File " << arguments[i] << " does not exist." << std::endl;
+            continue;
         }
 
-        verboseOutput = true;
+        yyparse();
+        context.compileModule(*program);
+        context.runCode();
     }
-
-    // Set input stream for parser
-    if ((yyin = fopen(arguments[1], "r")) == 0)
-    {
-        std::cerr << "Could not find given file " << arguments[1] << std::endl;
-        return 1;
-    }
-
-    yyparse();
-    GeneratorContext context(verboseOutput);// = new GeneratorContext(verboseOutput);
-    BindCoreFunctions(context);
-    context.compileModule(*program);
-    context.runCode();
 }
