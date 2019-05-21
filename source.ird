@@ -1,4 +1,12 @@
-text : String = @"Hello there."
-number : Int = @123456789
-print("Fliped string: %s\n", text)
-print("Fliped integer: %d\n", number)
+function Wrapper() -> Int {
+        
+    if [1 == 2] {
+        print("True\n")
+    } else {
+        print("False\n")
+    }
+
+    return 0
+}
+
+Wrapper()
