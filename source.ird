@@ -1,12 +1,11 @@
-function Wrapper() -> Int {
-        
-    if [1 == 2] {
-        print("True\n")
-    } else {
-        print("False\n")
+function Wrapper(a : Int) -> Int {
+    if [a == 1] {
+        return 55
+        print("Help\n")
     }
 
-    return 0
+    return 10
 }
 
-Wrapper()
+Wrapper(1)
+#print("%d\n", Wrapper(1) + Wrapper(4000))

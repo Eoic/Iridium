@@ -24,7 +24,7 @@ void GeneratorContext::compileModule(Block &root)
     mainFunction = llvm::Function::Create(functionType, llvm::GlobalValue::InternalLinkage, "main", module);
     llvm::BasicBlock *block = llvm::BasicBlock::Create(llvmContext, "entry", mainFunction, 0);
 
-    pushBlock(block);
+    pushBlock(block, "Main function basic block");
     root.generateCode(*this);
     llvm::ReturnInst::Create(llvmContext, block);
     popBlock();
@@ -34,7 +34,8 @@ void GeneratorContext::compileModule(Block &root)
     if (verboseOutput)
         passManager.add(llvm::createPrintModulePass(llvm::outs()));
 
-    std::cout << "Compiled successfully." << std::endl << std::endl;
+    std::cout << "Compiled successfully." << std::endl
+              << std::endl;
     passManager.run(*module);
 }
 
@@ -256,7 +257,7 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
     else if (dynamic_cast<String *>(&rhs))
     {
         String *string = dynamic_cast<String *>(&rhs);
-        std::reverse(string->value.begin(), string->value.end()); 
+        std::reverse(string->value.begin(), string->value.end());
         return string->generateCode(context);
     }
 
@@ -342,7 +343,7 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
     llvm::Function *function = llvm::Function::Create(functionType, llvm::GlobalValue::InternalLinkage, functionName, context.module);
     llvm::BasicBlock *basicBlock = llvm::BasicBlock::Create(llvmContext, "entry", function, 0);
 
-    context.pushBlock(basicBlock);
+    context.pushBlock(basicBlock, "Basic function block");
 
     llvm::Function::arg_iterator argumentValues = function->arg_begin();
     llvm::Value *argumentValue;
@@ -365,7 +366,11 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 
 llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
+    llvm::IRBuilder<> builder(llvmContext);
     llvm::Function *function = context.currentBlock()->getParent();
+
+    // Comparison result
+    llvm::Value *conditionValue = comparison->generateCode(context);
 
     // Blocks for branches
     llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
@@ -374,7 +379,6 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 
     // Insert if block to function
     function->getBasicBlockList().push_back(thenBlock);
-    llvm::Value *conditionValue = comparison->generateCode(context);
 
     if (elseBlockNode != nullptr)
         llvm::BranchInst::Create(thenBlock, elseBlock, conditionValue, context.currentBlock());
@@ -382,22 +386,23 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
         llvm::BranchInst::Create(thenBlock, mergeBlock, conditionValue, context.currentBlock());
 
     // To match variables
-    context.pushBlock(thenBlock);
+    context.pushBlock(thenBlock, "Then Block");
     llvm::Value *thenValue = thenBlockNode->generateCode(context);
     llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+    //llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock()); // !
     context.popBlock();
 
     if (elseBlockNode != nullptr)
     {
         function->getBasicBlockList().push_back(elseBlock);
-        context.pushBlock(elseBlock);
+        context.pushBlock(elseBlock, "Else block");
         llvm::Value *elseValue = elseBlockNode->generateCode(context);
         llvm::BranchInst::Create(mergeBlock, context.currentBlock());
         context.popBlock();
     }
 
     function->getBasicBlockList().push_back(mergeBlock);
-    context.pushBlock(mergeBlock);
+    context.pushBlock(mergeBlock, "Merge block");
     llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
     context.popBlock();
 

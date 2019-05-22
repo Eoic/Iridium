@@ -25,6 +25,7 @@ public:
     llvm::BasicBlock *block;
     llvm::Value *returnValue;
     std::map<std::string, llvm::Value *> locals;
+    std::string blockName;
 };
 
 class GeneratorContext
@@ -35,6 +36,7 @@ class GeneratorContext
     int logNumber = 0;
 
 public:
+    // Compilation unit, containing functions
     llvm::Module *module;
 
     GeneratorContext(bool verboseOutput)
@@ -57,12 +59,13 @@ public:
         return blocks.top()->block;
     }
 
-    void pushBlock(llvm::BasicBlock *block)
+    void pushBlock(llvm::BasicBlock *block, std::string blockName)
     {
         GeneratorBlock *generatorBlock = new GeneratorBlock();
         blocks.push(generatorBlock);
         blocks.top()->returnValue = NULL;
         blocks.top()->block = block;
+        blocks.top()->blockName = blockName;
     }
 
     void popBlock()
@@ -77,16 +80,22 @@ public:
         blocks.top()->returnValue = value;
     }
 
-    llvm::Value* getCurrentReturnValue() 
+    llvm::Value *getCurrentReturnValue()
     {
         return blocks.top()->returnValue;
     }
 
     void logMessage(const std::string message)
     {
-        if(verboseOutput) {
+        if (verboseOutput)
+        {
             std::string id = std::to_string(++logNumber) + ".";
             std::cout << std::left << std::setw(5) << id << message << std::endl;
         }
+    }
+
+    std::stack<GeneratorBlock *> getBlocks()
+    {
+        return blocks;
     }
 };
