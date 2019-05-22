@@ -1,11 +1,15 @@
 function Wrapper(a : Int) -> Int {
+    b : Int = 20
+    b = 30
+
     if [a == 1] {
-        return 55
-        print("Help\n")
+        print("%d\n", a)
+    } else {
+        print("%d\n", b)
     }
 
-    return 10
+    return 88
 }
 
-Wrapper(1)
+Wrapper(5)
 #print("%d\n", Wrapper(1) + Wrapper(4000))

@@ -59,6 +59,11 @@ public:
         return blocks.top()->block;
     }
 
+    std::map<std::string, llvm::Value *> currentBlockLocals()
+    {
+        return blocks.top()->locals;
+    }
+
     void pushBlock(llvm::BasicBlock *block, std::string blockName)
     {
         GeneratorBlock *generatorBlock = new GeneratorBlock();
@@ -66,6 +71,12 @@ public:
         blocks.top()->returnValue = NULL;
         blocks.top()->block = block;
         blocks.top()->blockName = blockName;
+    }
+
+    void pushBlock(llvm::BasicBlock *block, std::string blockName, std::map<std::string, llvm::Value *> locals)
+    {
+        pushBlock(block, blockName);
+        blocks.top()->locals = locals;
     }
 
     void popBlock()

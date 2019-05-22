@@ -368,6 +368,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
     llvm::IRBuilder<> builder(llvmContext);
     llvm::Function *function = context.currentBlock()->getParent();
+    std::map<std::string, llvm::Value *> locals = context.currentBlockLocals();
 
     // Comparison result
     llvm::Value *conditionValue = comparison->generateCode(context);
@@ -386,16 +387,15 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
         llvm::BranchInst::Create(thenBlock, mergeBlock, conditionValue, context.currentBlock());
 
     // To match variables
-    context.pushBlock(thenBlock, "Then Block");
+    context.pushBlock(thenBlock, "Then Block", locals);
     llvm::Value *thenValue = thenBlockNode->generateCode(context);
     llvm::BranchInst::Create(mergeBlock, context.currentBlock());
-    //llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock()); // !
     context.popBlock();
 
     if (elseBlockNode != nullptr)
     {
         function->getBasicBlockList().push_back(elseBlock);
-        context.pushBlock(elseBlock, "Else block");
+        context.pushBlock(elseBlock, "Else block", locals);
         llvm::Value *elseValue = elseBlockNode->generateCode(context);
         llvm::BranchInst::Create(mergeBlock, context.currentBlock());
         context.popBlock();
