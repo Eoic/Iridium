@@ -26,7 +26,7 @@ void GeneratorContext::compileModule(Block &root)
 
     pushBlock(block, "Main function basic block");
     root.generateCode(*this);
-    llvm::ReturnInst::Create(llvmContext, block);
+    llvm::ReturnInst::Create(llvmContext, this->currentBlock());
     popBlock();
 
     llvm::legacy::PassManager passManager;
@@ -265,15 +265,23 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 }
 
 llvm::Value *Assignment::generateCode(GeneratorContext &context)
-{
+{   std::cout <<"Reached here4\n";
     if (context.locals().find(lhs.name) == context.locals().end())
-    {
+    {std::cout <<"Reached here5\n";
         std::cerr << "Variable " + lhs.name + " is undeclared." << std::endl;
         return NULL;
     }
-
+    std::cout <<"Reached here6\n";
+    context.currentBlock()->print(llvm::outs());
+    std::cout <<"Reached here7\n";
+    auto a = rhs.generateCode(context);
+    std::cout <<"Reached here8\n";
+    auto b = context.locals()[lhs.name];
+    std::cout <<"Reached here9\n";
+    a->print(llvm::outs());
+    b->print(llvm::outs());
     // Save variable in memory.
-    return new llvm::StoreInst(rhs.generateCode(context), context.locals()[lhs.name], false, context.currentBlock());
+    return new llvm::StoreInst(a, b, false, context.currentBlock());
 }
 
 llvm::Value *Block::generateCode(GeneratorContext &context)
@@ -316,16 +324,21 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     const llvm::Twine typeName = llvm::Twine(type.name.c_str());
 
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
+    context.module->print(llvm::outs(), nullptr);
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
+    
     context.locals()[id.name] = allocationInstance;
 
     // If declared variable is assigned to something
     if (assignmentExpression != NULL)
     {
+        std::cout <<"Reached here\n";
         Assignment assignment(id, *assignmentExpression);
+        std::cout <<"Reached here1\n";
         assignment.generateCode(context);
+        std::cout <<"Reached here2\n";
     }
-
+std::cout <<"Reached here3\n";
     return allocationInstance;
 }
 
@@ -350,14 +363,17 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 
     for (it = arguments.begin(); it != arguments.end(); it++)
     {
+        context.module->print(llvm::outs(), nullptr);
+        //function->print(llvm::outs());
         (**it).generateCode(context);
         argumentValue = &*argumentValues++;
         argumentValue->setName((*it)->id.name.c_str());
         llvm::StoreInst *storeInstance = new llvm::StoreInst(argumentValue, context.locals()[(*it)->id.name], false, basicBlock);
+        
     }
 
     block.generateCode(context);
-    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), basicBlock);
+    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
     context.popBlock();
 
     context.logMessage("Created function " + id.name);
@@ -377,7 +393,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
     llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
-
+    
     // Insert if block to function
     function->getBasicBlockList().push_back(thenBlock);
 
@@ -389,7 +405,11 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     // To match variables
     context.pushBlock(thenBlock, "Then Block", locals);
     llvm::Value *thenValue = thenBlockNode->generateCode(context);
-    llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+    std::cout << "Got here 10\n";
+    if(context.getCurrentReturnValue() != nullptr)
+        llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
+    else
+        llvm::BranchInst::Create(mergeBlock, context.currentBlock());
     context.popBlock();
 
     if (elseBlockNode != nullptr)
@@ -397,14 +417,21 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
         function->getBasicBlockList().push_back(elseBlock);
         context.pushBlock(elseBlock, "Else block", locals);
         llvm::Value *elseValue = elseBlockNode->generateCode(context);
-        llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+        if(context.getCurrentReturnValue() != nullptr)
+            llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
+        else
+            llvm::BranchInst::Create(mergeBlock, context.currentBlock());
         context.popBlock();
     }
 
     function->getBasicBlockList().push_back(mergeBlock);
-    context.pushBlock(mergeBlock, "Merge block");
-    llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
-    context.popBlock();
+
+    //get locals from block before if
+    locals = context.currentBlockLocals();
+    context.setCurrentBlock(mergeBlock, "Merge block", locals);
+    //context.pushBlock(mergeBlock, "Merge block", locals);
+    //llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
+    //context.popBlock();
 
     return NULL;
 }

@@ -59,6 +59,14 @@ public:
         return blocks.top()->block;
     }
 
+    void setCurrentBlock(llvm::BasicBlock *block, std::string blockName, std::map<std::string, llvm::Value *> locals)
+    {
+        blocks.top()->block = block;
+        blocks.top()->returnValue = NULL;
+        blocks.top()->blockName = blockName;
+        blocks.top()->locals = locals;
+    }
+
     std::map<std::string, llvm::Value *> currentBlockLocals()
     {
         return blocks.top()->locals;

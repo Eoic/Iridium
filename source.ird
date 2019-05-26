@@ -1,15 +1,24 @@
-function Wrapper(a : Int) -> Int {
-    b : Int = 20
-    b = 30
+a : Int = 0
 
-    if [a == 1] {
-        print("%d\n", a)
-    } else {
-        print("%d\n", b)
+function test(b : Int) -> Int{
+    if[b==0]{
+        print("Hello1\n")
+        return 0
     }
-
-    return 88
+    else{
+        if[b==1]{
+            print("Hello2\n")
+            return 1
+        }
+        else{
+            print("Hello3\n")
+            tempA : Int = test((b-1))
+            tempB : Int = test((b-2))
+            result : Int = (tempA+tempB)
+            return result
+        }
+    }
 }
 
-Wrapper(5)
-#print("%d\n", Wrapper(1) + Wrapper(4000))
+c : Int = test(4)
+print("%d\n", c)
