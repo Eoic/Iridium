@@ -436,8 +436,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
 }
 
 llvm::Value *While::generateCode(GeneratorContext &context){
-    //save locals for merge block
-    auto locals = context.currentBlockLocals();
+
 
     //get current function
     llvm::Function *function = context.currentBlock()->getParent();
@@ -447,9 +446,14 @@ llvm::Value *While::generateCode(GeneratorContext &context){
     llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(llvmContext, "while", function);
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "whileMerge", function);
 
+    if(loopVariable != nullptr) //if loop is "for loop" generate loop variable code (e.g int i = 0)
+        loopVariable->generateCode(context);
+
     //insert br jump to condition in current block
     llvm::BranchInst::Create(conditionBlock, context.currentBlock());
 
+    //save locals for merge block
+    auto locals = context.currentBlockLocals();
     //generate condition code
     context.pushBlock(conditionBlock, "WhileCondition", locals);
     llvm::Value *conditionValue = comparison->generateCode(context);
@@ -458,9 +462,12 @@ llvm::Value *While::generateCode(GeneratorContext &context){
     llvm::BranchInst::Create(bodyBlock, mergeBlock, conditionValue, context.currentBlock());
     context.popBlock();
 
-    //generate body clock code
+    //generate body block code
     context.pushBlock(bodyBlock, "WhileBody", locals);
     llvm::Value* bodyValue = body->generateCode(context);
+    
+    if(postLoop != nullptr) //if loop is "for loop" also generate postLoop code at the end of block (e.g i++) 
+        postLoop->generateCode(context);
 
     //check if return was inside while block, if wasn't, generate br to jump back to condition block
     if(context.getCurrentReturnValue() != nullptr)

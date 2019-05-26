@@ -1,7 +1,7 @@
 a : Int = 5
 
 function test(a : Int) -> void{
-    loop until [a < 10]{
+    loop [i : Int = 0; i < 10; i = i + 1]{
         if[a == 6]{
             print("a=6\n")
         }
@@ -14,4 +14,6 @@ function test(a : Int) -> void{
 }
 
 test(a)
-print("End\n")
+b : Int = 998
+
+print("End a=%d\n", b)

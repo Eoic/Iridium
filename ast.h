@@ -171,7 +171,10 @@ class While : public Statement
 public:
     Expression *comparison;
     Block *body;
+    Statement *postLoop;
+    Statement *loopVariable;
 
-    While(Expression *comparison, Block *bodyBlock) : comparison(comparison),body(bodyBlock) {}
+    While(Expression *comparison, Block *bodyBlock) : comparison(comparison), body(bodyBlock) {}
+    While(Expression *comparison, Block *bodyBlock, Statement *postLoop, Statement *loopVar) : comparison(comparison), body(bodyBlock), postLoop(postLoop), loopVariable(loopVar) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
