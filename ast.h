@@ -165,3 +165,13 @@ public:
     ReturnStatement(Expression &returnExpression) : returnExpression(returnExpression) {}
     virtual llvm::Value *generateCode(GeneratorContext &context);
 };
+
+class While : public Statement
+{
+public:
+    Expression *comparison;
+    Block *body;
+
+    While(Expression *comparison, Block *bodyBlock) : comparison(comparison),body(bodyBlock) {}
+    virtual llvm::Value *generateCode(GeneratorContext &context);
+};

@@ -382,7 +382,6 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
 
 llvm::Value *Conditional::generateCode(GeneratorContext &context)
 {
-    llvm::IRBuilder<> builder(llvmContext);
     llvm::Function *function = context.currentBlock()->getParent();
     std::map<std::string, llvm::Value *> locals = context.currentBlockLocals();
 
@@ -405,7 +404,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     // To match variables
     context.pushBlock(thenBlock, "Then Block", locals);
     llvm::Value *thenValue = thenBlockNode->generateCode(context);
-    std::cout << "Got here 10\n";
+    //std::cout << "Got here 10\n";
     if(context.getCurrentReturnValue() != nullptr)
         llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
     else
@@ -434,4 +433,43 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     //context.popBlock();
 
     return NULL;
+}
+
+llvm::Value *While::generateCode(GeneratorContext &context){
+    //save locals for merge block
+    auto locals = context.currentBlockLocals();
+
+    //get current function
+    llvm::Function *function = context.currentBlock()->getParent();
+    // Comparison result
+
+    llvm::BasicBlock *conditionBlock = llvm::BasicBlock::Create(llvmContext, "whileCondition", function);
+    llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(llvmContext, "while", function);
+    llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "whileMerge", function);
+
+    //insert br jump to condition in current block
+    llvm::BranchInst::Create(conditionBlock, context.currentBlock());
+
+    //generate condition code
+    context.pushBlock(conditionBlock, "WhileCondition", locals);
+    llvm::Value *conditionValue = comparison->generateCode(context);
+
+    //insert br instruction at the end of condition block
+    llvm::BranchInst::Create(bodyBlock, mergeBlock, conditionValue, context.currentBlock());
+    context.popBlock();
+
+    //generate body clock code
+    context.pushBlock(bodyBlock, "WhileBody", locals);
+    llvm::Value* bodyValue = body->generateCode(context);
+
+    //check if return was inside while block, if wasn't, generate br to jump back to condition block
+    if(context.getCurrentReturnValue() != nullptr)
+        llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
+    else
+        llvm::BranchInst::Create(conditionBlock, context.currentBlock());
+    context.popBlock();
+    
+    context.setCurrentBlock(mergeBlock, "Merge block", locals);
+
+    return nullptr;
 }

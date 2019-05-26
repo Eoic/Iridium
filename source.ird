@@ -11,14 +11,23 @@ function test(b : Int) -> Int{
             return 1
         }
         else{
-            print("Hello3\n")
-            tempA : Int = test((b-1))
-            tempB : Int = test((b-2))
-            result : Int = (tempA+tempB)
-            return result
+            print("b = %d\n", b)
+
+            return test(b - 1) + test(b - 2)
         }
     }
 }
 
-c : Int = test(4)
+function test1(d : Int) -> Int {
+    if[d == 0]{
+        return 1
+    }
+    else{
+        return 2
+    }
+}
+
+c : Int = test1(5)
+
+
 print("%d\n", c)

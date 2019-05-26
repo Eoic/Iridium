@@ -1,0 +1,17 @@
+a : Int = 5
+
+function test(a : Int) -> void{
+    loop until [a < 10]{
+        if[a == 6]{
+            print("a=6\n")
+        }
+        else{
+            print("a!=6\n")
+        }
+        a = a + 1
+        print("%d\n", a)
+    }
+}
+
+test(a)
+print("End\n")

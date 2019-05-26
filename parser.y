@@ -116,7 +116,7 @@ conditional : IF BOX_BRACKET_L expression BOX_BRACKET_R block ELSE block    { $$
             ;
 
 loop : LOOP BOX_BRACKET_L var_declaration SEMICOLON expression SEMICOLON expression BOX_BRACKET_R block {}
-     | LOOP UNTIL BOX_BRACKET_L expression BOX_BRACKET_R block {}
+     | LOOP UNTIL BOX_BRACKET_L expression BOX_BRACKET_R block { $$ = new While($4, $6); }
      ;
 
 comparison : LT 
