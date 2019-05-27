@@ -2,32 +2,32 @@ a : Int = 0
 
 function test(b : Int) -> Int{
     if[b==0]{
-        print("Hello1\n")
-        return 0
+        #print("Hello1\n")
+        <- 0
     }
     else{
         if[b==1]{
-            print("Hello2\n")
-            return 1
+            #print("Hello2\n")
+            <- 1
         }
         else{
-            print("b = %d\n", b)
+            #print("b = %d\n", b)
 
-            return test(b - 1) + test(b - 2)
+            <- test(b - 1) + test(b - 2)
         }
     }
 }
 
 function test1(d : Int) -> Int {
     if[d == 0]{
-        return 1
+        <- 1
     }
     else{
-        return 2
+        <- 2
     }
 }
 
-c : Int = test1(5)
+c : Int = test(30)
 
 
 print("%d\n", c)

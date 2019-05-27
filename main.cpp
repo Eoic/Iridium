@@ -7,17 +7,34 @@ extern Block *program; // AST tree root node pointer
 extern int yyparse();  // Builds parse tree
 extern FILE *yyin;     // Input stream file pointer
 
-void checkFlags(int argCount, char **arguments, bool *verboseOutput)
+bool checkFlags(int argCount, char **arguments, bool *verboseOutput, bool *compileToFile, std::string *fileName)
 {
-    for (int i = 0; i < argCount; i++)
-        if (std::strcmp(arguments[i], "-v") == 0)
+    for (int i = 0; i < argCount; i++){
+        if (std::strcmp(arguments[i], "-v") == 0){
             *verboseOutput = true;
+        }
+        if (std::strcmp(arguments[i], "-o") == 0)
+        {
+            *compileToFile = true;
+            if(arguments[i+1] != nullptr){
+                *fileName = arguments[i+1];
+                return true;    
+            }
+            else{
+                std::cerr << "Provide a file name when using -o option!" << std::endl;
+                return false;
+            }
+        }
+    }
 }
 
 int main(int argCount, char **arguments)
 {
     bool verboseOutput = false;
-    checkFlags(argCount, arguments, &verboseOutput);
+    bool compileToFile = false;
+    std::string fileName;
+    if(!checkFlags(argCount, arguments, &verboseOutput, &compileToFile, &fileName))
+        return -1;
     GeneratorContext context(verboseOutput);
 
     // Invalid parameters
@@ -40,7 +57,12 @@ int main(int argCount, char **arguments)
         }
 
         yyparse();
+        
         context.compileModule(*program);
-        context.runCode();
+        if (compileToFile)
+            context.compileToExecutable(fileName);
+        else
+            context.runCode(); 
+
     }
 }

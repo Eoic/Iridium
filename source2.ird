@@ -15,5 +15,6 @@ function test(a : Int) -> void{
 
 test(a)
 b : Int = 998
+c : String = "Hello"
 
-print("End a=%d\n", b)
+print("End a=%s\n", @b)

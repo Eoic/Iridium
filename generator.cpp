@@ -2,12 +2,20 @@
 #include "generator.hpp"
 #include "parser.hpp"
 #include <algorithm>
+#include <llvm/Bitcode/BitcodeWriter.h>
 
 /*
     Modules containt functions
     Functions contains basic blocks
     Basic blocks contains instructions
 */
+
+void GeneratorContext::compileToExecutable(std::string fileName){
+    std::error_code EC;
+    llvm::raw_fd_ostream OS(fileName, EC, llvm::sys::fs::F_None);
+    WriteBitcodeToFile(*this->module, OS);
+    OS.flush();
+}
 
 // Create LLVM module object
 void GeneratorContext::compileModule(Block &root)
@@ -237,7 +245,7 @@ llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 {
     llvm::Value *invertedValue = NULL;
-
+    
     if (dynamic_cast<Integer *>(&rhs))
     {
         Integer *integer = dynamic_cast<Integer *>(&rhs);
@@ -264,24 +272,13 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
     return invertedValue;
 }
 
-llvm::Value *Assignment::generateCode(GeneratorContext &context)
-{   std::cout <<"Reached here4\n";
-    if (context.locals().find(lhs.name) == context.locals().end())
-    {std::cout <<"Reached here5\n";
+llvm::Value *Assignment::generateCode(GeneratorContext &context){
+    if (context.locals().find(lhs.name) == context.locals().end()){
         std::cerr << "Variable " + lhs.name + " is undeclared." << std::endl;
         return NULL;
     }
-    std::cout <<"Reached here6\n";
-    context.currentBlock()->print(llvm::outs());
-    std::cout <<"Reached here7\n";
-    auto a = rhs.generateCode(context);
-    std::cout <<"Reached here8\n";
-    auto b = context.locals()[lhs.name];
-    std::cout <<"Reached here9\n";
-    a->print(llvm::outs());
-    b->print(llvm::outs());
     // Save variable in memory.
-    return new llvm::StoreInst(a, b, false, context.currentBlock());
+    return new llvm::StoreInst(rhs.generateCode(context), context.locals()[lhs.name], false, context.currentBlock());
 }
 
 llvm::Value *Block::generateCode(GeneratorContext &context)
@@ -332,13 +329,9 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     // If declared variable is assigned to something
     if (assignmentExpression != NULL)
     {
-        std::cout <<"Reached here\n";
         Assignment assignment(id, *assignmentExpression);
-        std::cout <<"Reached here1\n";
         assignment.generateCode(context);
-        std::cout <<"Reached here2\n";
     }
-std::cout <<"Reached here3\n";
     return allocationInstance;
 }
 
@@ -393,8 +386,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
     
-    // Insert if block to function
-    function->getBasicBlockList().push_back(thenBlock);
+
 
     if (elseBlockNode != nullptr)
         llvm::BranchInst::Create(thenBlock, elseBlock, conditionValue, context.currentBlock());

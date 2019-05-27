@@ -46,6 +46,7 @@ public:
     }
 
     void compileModule(Block &root);
+    void compileToExecutable(std::string fileName);
 
     llvm::GenericValue runCode();
 

@@ -28,7 +28,7 @@ comment         [#]+.*
 "function"                  { return SAVE_TOKEN(FUNCTION); }
 "loop"                      { return SAVE_TOKEN(LOOP); }
 "until"                     { return SAVE_TOKEN(UNTIL); }
-"return"                    { return SAVE_TOKEN(RETURN); }
+"<-"                    { return SAVE_TOKEN(RETURN); }
 {comment}                   ;
 {identifier}                { SAVE_VALUE; return IDENTIFIER; }
 {integer}                   { SAVE_VALUE; return INTEGER; }
