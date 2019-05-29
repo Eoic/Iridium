@@ -10,7 +10,8 @@
     Basic blocks contains instructions
 */
 
-void GeneratorContext::compileToExecutable(std::string fileName){
+void GeneratorContext::compileToExecutable(std::string fileName)
+{
     std::error_code EC;
     llvm::raw_fd_ostream OS(fileName, EC, llvm::sys::fs::F_None);
     WriteBitcodeToFile(*this->module, OS);
@@ -42,8 +43,7 @@ void GeneratorContext::compileModule(Block &root)
     if (verboseOutput)
         passManager.add(llvm::createPrintModulePass(llvm::outs()));
 
-    std::cout << "Compiled successfully." << std::endl
-              << std::endl;
+    std::cout << "Compiled successfully." << std::endl << std::endl;
     passManager.run(*module);
 }
 
@@ -211,6 +211,8 @@ llvm::Value *BinaryOperator::generateCode(GeneratorContext &context)
         return builder.CreateICmpSGE(lhsValue, rhsValue);
     case NEQ:
         return builder.CreateICmpNE(lhsValue, rhsValue);
+    //case OR: 
+    //    return builder.CreateOr(lhsValue, rhsValue);
     default:
         return NULL;
         break;
@@ -245,7 +247,7 @@ llvm::Value *UnaryOperator::generateCode(GeneratorContext &context)
 llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
 {
     llvm::Value *invertedValue = NULL;
-    
+
     if (dynamic_cast<Integer *>(&rhs))
     {
         Integer *integer = dynamic_cast<Integer *>(&rhs);
@@ -272,8 +274,10 @@ llvm::Value *InversionOperator::generateCode(GeneratorContext &context)
     return invertedValue;
 }
 
-llvm::Value *Assignment::generateCode(GeneratorContext &context){
-    if (context.locals().find(lhs.name) == context.locals().end()){
+llvm::Value *Assignment::generateCode(GeneratorContext &context)
+{
+    if (context.locals().find(lhs.name) == context.locals().end())
+    {
         std::cerr << "Variable " + lhs.name + " is undeclared." << std::endl;
         return NULL;
     }
@@ -323,7 +327,7 @@ llvm::Value *VariableDeclaration::generateCode(GeneratorContext &context)
     context.logMessage("Declaring variable [" + id.name + "] of type [" + type.name + "]");
     context.module->print(llvm::outs(), nullptr);
     llvm::AllocaInst *allocationInstance = new llvm::AllocaInst(typeOf(type), addressSpace, typeName, context.currentBlock());
-    
+
     context.locals()[id.name] = allocationInstance;
 
     // If declared variable is assigned to something
@@ -362,7 +366,6 @@ llvm::Value *FunctionDeclaration::generateCode(GeneratorContext &context)
         argumentValue = &*argumentValues++;
         argumentValue->setName((*it)->id.name.c_str());
         llvm::StoreInst *storeInstance = new llvm::StoreInst(argumentValue, context.locals()[(*it)->id.name], false, basicBlock);
-        
     }
 
     block.generateCode(context);
@@ -385,8 +388,6 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(llvmContext, "then", function);
     llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(llvmContext, "else");
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "ifcont");
-    
-
 
     if (elseBlockNode != nullptr)
         llvm::BranchInst::Create(thenBlock, elseBlock, conditionValue, context.currentBlock());
@@ -397,10 +398,11 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     context.pushBlock(thenBlock, "Then Block", locals);
     llvm::Value *thenValue = thenBlockNode->generateCode(context);
     //std::cout << "Got here 10\n";
-    if(context.getCurrentReturnValue() != nullptr)
+    if (context.getCurrentReturnValue() != nullptr)
         llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
     else
         llvm::BranchInst::Create(mergeBlock, context.currentBlock());
+
     context.popBlock();
 
     if (elseBlockNode != nullptr)
@@ -408,7 +410,7 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
         function->getBasicBlockList().push_back(elseBlock);
         context.pushBlock(elseBlock, "Else block", locals);
         llvm::Value *elseValue = elseBlockNode->generateCode(context);
-        if(context.getCurrentReturnValue() != nullptr)
+        if (context.getCurrentReturnValue() != nullptr)
             llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
         else
             llvm::BranchInst::Create(mergeBlock, context.currentBlock());
@@ -427,9 +429,8 @@ llvm::Value *Conditional::generateCode(GeneratorContext &context)
     return NULL;
 }
 
-llvm::Value *While::generateCode(GeneratorContext &context){
-
-
+llvm::Value *While::generateCode(GeneratorContext &context)
+{
     //get current function
     llvm::Function *function = context.currentBlock()->getParent();
     // Comparison result
@@ -438,7 +439,7 @@ llvm::Value *While::generateCode(GeneratorContext &context){
     llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(llvmContext, "while", function);
     llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(llvmContext, "whileMerge", function);
 
-    if(loopVariable != nullptr) //if loop is "for loop" generate loop variable code (e.g int i = 0)
+    if (loopVariable != nullptr) //if loop is "for loop" generate loop variable code (e.g int i = 0)
         loopVariable->generateCode(context);
 
     //insert br jump to condition in current block
@@ -456,18 +457,18 @@ llvm::Value *While::generateCode(GeneratorContext &context){
 
     //generate body block code
     context.pushBlock(bodyBlock, "WhileBody", locals);
-    llvm::Value* bodyValue = body->generateCode(context);
-    
-    if(postLoop != nullptr) //if loop is "for loop" also generate postLoop code at the end of block (e.g i++) 
+    llvm::Value *bodyValue = body->generateCode(context);
+
+    if (postLoop != nullptr) //if loop is "for loop" also generate postLoop code at the end of block (e.g i++)
         postLoop->generateCode(context);
 
     //check if return was inside while block, if wasn't, generate br to jump back to condition block
-    if(context.getCurrentReturnValue() != nullptr)
+    if (context.getCurrentReturnValue() != nullptr)
         llvm::ReturnInst::Create(llvmContext, context.getCurrentReturnValue(), context.currentBlock());
     else
         llvm::BranchInst::Create(conditionBlock, context.currentBlock());
-    context.popBlock();
     
+    context.popBlock();
     context.setCurrentBlock(mergeBlock, "Merge block", locals);
 
     return nullptr;

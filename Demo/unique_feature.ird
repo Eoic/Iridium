@@ -1,0 +1,5 @@
+flippedNumber : Int = @123456789
+flippedString : String = @"Hello there!"
+
+print("Flipped number: %d\n", flippedNumber)
+print("Flipped string: %s\n", flippedString)

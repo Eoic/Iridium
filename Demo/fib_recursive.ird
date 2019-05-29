@@ -1,0 +1,22 @@
+function fib(b : Int) -> Int{
+    if [b == 0] {
+        <- 0
+    }
+    else {
+        if [b == 1] {
+            <- 1
+        }
+        else {
+            <- fib(b - 1) + fib(b - 2)
+        }
+    }
+}
+
+i : Int = 0
+x : Int = 21
+
+loop until [i < x] {
+    c : Int = fib(i)
+    print("%d\n", c)
+    i = i++
+}

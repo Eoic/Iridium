@@ -1,0 +1,15 @@
+a : Int = 0
+b : Int = 1
+print("%d, %d, ", a, b)
+fibNumber : Int = a + b
+maxNumber : Int = 20
+print("%d", fibNumber)
+
+loop until [fibNumber <= maxNumber] {
+    a = b
+    b = fibNumber
+    fibNumber = a + b
+    print(", %d", fibNumber)
+}
+
+print("\n")
