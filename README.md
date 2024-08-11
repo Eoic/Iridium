@@ -1,4 +1,5 @@
 # Iridium
+Toy LLVM compiler.
 ### Prerequisites
 ```
 llvm-7
